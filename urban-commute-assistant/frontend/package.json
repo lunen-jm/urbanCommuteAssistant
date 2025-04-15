@@ -1,0 +1,33 @@
+{
+  "name": "urban-commute-assistant",
+  "version": "1.0.0",
+  "description": "An interactive real-time web application to assist commuters with urban data streams.",
+  "main": "src/index.tsx",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "redux": "^4.1.0",
+    "react-redux": "^7.2.6",
+    "axios": "^1.6.2",
+    "react-router-dom": "^6.22.3",
+    "leaflet": "^1.9.4",
+    "react-leaflet": "^4.2.1",
+    "@reduxjs/toolkit": "^1.9.7"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.5",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@types/react-redux": "^7.1.11",
+    "@types/react-router-dom": "^5.3.3"
+  },
+  "homepage": "http://localhost:3000",
+  "license": "MIT"
+}

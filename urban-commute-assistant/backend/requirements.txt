@@ -1,0 +1,13 @@
+Flask==2.1.1
+fastapi==0.75.0
+uvicorn==0.17.0
+sqlalchemy==1.4.27
+alembic==1.7.5
+pydantic==1.9.0
+httpx==0.21.1
+python-dotenv==0.19.2
+pytest==6.2.5
+pytest-asyncio==0.15.1
+passlib==1.7.4
+bcrypt==3.2.0
+requests==2.26.0
