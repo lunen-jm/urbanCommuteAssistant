@@ -22,3 +22,7 @@
 
 ## Expected Outcome
 - Enhanced quality of life for users through improved daily decision-making, minimized commuting stress, and increased adaptability to urban disruptions.
+
+## Progress
+
+4.18.25 - Initial container app has been created, current location is used, the map is shown, the API connections are initialized (keys have not been included yet in repository due to debugging), and general project dependencies and packages are listed in their respective documents.
