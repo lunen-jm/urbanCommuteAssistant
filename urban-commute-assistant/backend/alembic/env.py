@@ -2,7 +2,8 @@ from logging.config import fileConfig
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from alembic import context
-from backend.app.db.models import Base  # Import your models here
+from app.db.base import Base  # Import Base directly from base.py
+import app.db.models  # Import models to register them with Base.metadata
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

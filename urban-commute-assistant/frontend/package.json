@@ -23,11 +23,23 @@
   },
   "devDependencies": {
     "typescript": "^4.9.5",
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
     "@types/react-redux": "^7.1.11",
     "@types/react-router-dom": "^5.3.3"
   },
   "homepage": "http://localhost:3000",
-  "license": "MIT"
+  "license": "MIT",
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
 }

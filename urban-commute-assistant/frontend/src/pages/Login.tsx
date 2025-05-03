@@ -1,14 +1,14 @@
 import React, { useState, FormEvent, ChangeEvent } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../services/auth';
-import { setUser } from '../store/userSlice';
+import { loginUser } from '../store/authSlice';
+import { AppDispatch } from '../store';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
-    const dispatch = useDispatch();
+    const dispatch = useDispatch<AppDispatch>();
     const navigate = useNavigate();
 
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -16,11 +16,13 @@ const Login: React.FC = () => {
         setError('');
 
         try {
-            const userData = await login(email, password);
-            dispatch(setUser(userData));
+            const result = await dispatch(loginUser({ 
+                username: email, 
+                password 
+            })).unwrap();
             navigate('/');
-        } catch (err) {
-            setError('Invalid email or password');
+        } catch (err: any) {
+            setError(err.toString() || 'Invalid email or password');
         }
     };
 

@@ -70,7 +70,38 @@ You'll need to obtain API keys for the following services:
 Start the entire application stack:
 
 ```
+cd "urban-commute-assistant"
 docker-compose up --build
+```
+
+Sometimes you may need to reset the db too:
+
+```
+cd "urban-commute-assistant"
+docker-compose down # resets db
+docker-compose up --build
+```
+
+And then re-initialize the test user in the db:
+
+```
+cd "urban-commute-assistant"
+docker-compose exec backend python -m app.db.init_db
+```
+
+The application will be built and started. Once the services are running, we need to create a test user by connecting to the backend container:
+
+```
+# Create the test user
+docker-compose exec backend python -m app.db.init_db
+```
+
+Sometimes you may need to stop and clean everything, especially urban-commute-assistant-db-1:
+
+```
+docker stop urban-commute-assistant-db-1
+docker rm urban-commute-assistant-db-1
+docker network rm urban-commute-assistant_default
 ```
 
 This command will:
@@ -90,6 +121,11 @@ Once all containers are running:
 * Backend API: http://localhost:8000
 * API Documentation: http://localhost:8000/docs
 
+Login info:
+
+* Email: test@example.com
+* PW: password123 
+
 ## Step 6: First-time Setup
 
 1. Create a test account using the registration page
@@ -108,8 +144,23 @@ If the backend can't connect to the database:
 docker-compose logs db
 
 # Access PostgreSQL container
-docker-compose exec db psql -U postgres -d
+docker-compose exec db psql -U postgres -d urban_commute
 ```
+
+### SQLite Threading Issues
+
+If you see errors like `SQLite objects created in a thread can only be used in that same thread`, make sure your `session.py` has the proper configuration for SQLite:
+
+```python
+# For SQLite, you need these settings to handle multi-threading
+engine = create_engine(
+    Config.SQLALCHEMY_DATABASE_URI,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool
+)
+```
+
+This is particularly important in development environments where SQLite is often used instead of PostgreSQL.
 
 ### API Integration Problems
 

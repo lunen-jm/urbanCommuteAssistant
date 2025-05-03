@@ -1,32 +1,54 @@
-import React from 'react';
-import { useSelector } from 'react-redux';
-import DataCard from './DataCard';
-import { RootState, TransitData } from '../../types';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../../types';
+import { fetchWeatherData } from '../../store/weatherSlice';
+import { fetchTrafficData } from '../../store/trafficSlice';
+import WeatherSummary from './WeatherSummary';
+import TrafficSummary from './TrafficSummary';
+import TransitSummary from './TransitSummary';
+import CommuteSuggestions from './CommuteSuggestions';
+import './Dashboard.css';
 
 const Dashboard: React.FC = () => {
-    const userLocation = useSelector((state: RootState) => state.user.preferences.location);
-    const transitData = useSelector((state: RootState) => state.transitData.data as TransitData[] | null);
-    const notificationsEnabled = useSelector((state: RootState) => state.user.preferences.notifications);
-    const transitLoading = useSelector((state: RootState) => state.transitData.loading);
-    const transitError = useSelector((state: RootState) => state.transitData.error);
+    const dispatch = useDispatch();
+    const userPreferences = useSelector((state: RootState) => state.user.preferences);
+    const mapCenter = useSelector((state: RootState) => state.map.center);
+    const username = useSelector((state: RootState) => state.user.name);
+
+    // Fetch data when the component mounts or when location changes
+    useEffect(() => {
+        // Use the map center as the location for fetching data
+        // In a real implementation, we might use the user's current location or a saved home/work location
+        if (mapCenter) {
+            dispatch(fetchWeatherData(mapCenter));
+            dispatch(fetchTrafficData(mapCenter));
+            // Transit data would also be fetched here with a similar action
+        }
+    }, [dispatch, mapCenter]);
 
     return (
         <div className="dashboard">
-            <h1>Dashboard</h1>
-            {userLocation && <h2>Your Location: {userLocation}</h2>}
-            <h3>Notification Preferences: {notificationsEnabled ? 'Enabled' : 'Disabled'}</h3>
-
-            <h3>Transit Data</h3>
-            {transitLoading && <p>Loading transit data...</p>}
-            {transitError && <p>Error loading transit data: {transitError}</p>}
-            <div className="data-cards">
-                {Array.isArray(transitData) && transitData.length > 0 ? (
-                    transitData.map((data, index) => (
-                        <DataCard key={index} title={data.line} value={data.status} />
-                    ))
-                ) : (
-                    !transitLoading && <p>No transit data available.</p>
-                )}
+            <div className="dashboard-header">
+                <h2>Dashboard</h2>
+                {username && <p className="welcome-message">Welcome, {username}!</p>}
+            </div>
+            
+            <div className="dashboard-grid">
+                <div className="dashboard-card">
+                    <WeatherSummary />
+                </div>
+                
+                <div className="dashboard-card">
+                    <TrafficSummary />
+                </div>
+                
+                <div className="dashboard-card">
+                    <TransitSummary />
+                </div>
+                
+                <div className="dashboard-card">
+                    <CommuteSuggestions />
+                </div>
             </div>
         </div>
     );

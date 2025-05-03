@@ -6,34 +6,28 @@ services:
       context: ./backend
       dockerfile: Dockerfile
     volumes:
-      - ./backend/app:/app
+      - ./backend:/app
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./test.db
-      - API_KEY=your_api_key_here
-    depends_on:
-      - db
-
-  db:
-    image: postgres:latest
-    environment:
-      POSTGRES_DB: urban_commute
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-    volumes:
-      - db_data:/var/lib/postgresql/data
+      - DATABASE_URL=sqlite:///./site.db
+      - SECRET_KEY=your_secret_key_for_jwt
+      - WEATHER_API_KEY=your_weather_api_key
+      - TRANSIT_API_KEY=your_transit_api_key
+      - TRAFFIC_API_KEY=your_traffic_api_key
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
     volumes:
-      - ./frontend/src:/app/src
+      - ./frontend:/app
+      - /app/node_modules
     ports:
       - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING=true
+      - WDS_SOCKET_PORT=0
     depends_on:
       - backend
-
-volumes:
-  db_data:

@@ -6,6 +6,7 @@ import Settings from './pages/Settings';
 import Dashboard from './components/Dashboard/Dashboard';
 import NotificationPanel from './components/Notifications/NotificationPanel';
 import ProfileSettings from './components/UserProfile/ProfileSettings';
+import ProtectedRoute from './components/Auth/ProtectedRoute';
 import './styles.css';
 
 const App: React.FC = () => {
@@ -13,12 +14,32 @@ const App: React.FC = () => {
     <Router>
       <div className="app">
         <Routes>
-          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/notifications" element={<NotificationPanel />} />
-          <Route path="/profile" element={<ProfileSettings />} />
+          <Route path="/" element={
+            <ProtectedRoute>
+              <Home />
+            </ProtectedRoute>
+          } />
+          <Route path="/settings" element={
+            <ProtectedRoute>
+              <Settings />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } />
+          <Route path="/notifications" element={
+            <ProtectedRoute>
+              <NotificationPanel />
+            </ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute>
+              <ProfileSettings />
+            </ProtectedRoute>
+          } />
         </Routes>
       </div>
     </Router>
