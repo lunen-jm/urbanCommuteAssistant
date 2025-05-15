@@ -1,24 +1,5 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
-
-export interface TrafficIncident {
-  id: string;
-  type: string;
-  severity: 'Low' | 'Medium' | 'High';
-  description: string;
-  location: string;
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
-  startTime: string;
-  endTime?: string;
-}
-
-export interface TrafficData {
-  congestionLevel: 'Low' | 'Moderate' | 'High';
-  incidents: TrafficIncident[];
-  lastUpdated: string;
-}
+import { TrafficData, TrafficIncident, FlowSegment } from '../types/index';
 
 interface TrafficState {
   data: TrafficData | null;
@@ -38,9 +19,7 @@ export const fetchTrafficData = createAsyncThunk(
   async (location: { lat: number; lng: number, radius?: number }, { rejectWithValue }) => {
     try {
       // This would be replaced with an actual API call
-      console.log('Fetching traffic data for', location);
-      
-      // Mock data for now
+      console.log('Fetching traffic data for', location);      // Mock data for now
       const mockTrafficData: TrafficData = {
         congestionLevel: 'Moderate',
         incidents: [
@@ -74,7 +53,25 @@ export const fetchTrafficData = createAsyncThunk(
             endTime: '2023-05-02T19:00:00Z'
           }
         ],
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        flowSegments: [
+          {
+            id: 'flow-1',
+            currentSpeed: 35,
+            freeFlowSpeed: 60,
+            roadName: 'Interstate 5',
+            location: { lat: 47.615, lng: -122.335 },
+            length: 2.5
+          },
+          {
+            id: 'flow-2',
+            currentSpeed: 25,
+            freeFlowSpeed: 40,
+            roadName: 'Pike Street',
+            location: { lat: 47.610, lng: -122.340 },
+            length: 1.2
+          }
+        ]
       };
       
       return mockTrafficData;
@@ -98,9 +95,28 @@ const trafficSlice = createSlice({
       .addCase(fetchTrafficData.pending, (state) => {
         state.loading = true;
         state.error = null;
-      })
-      .addCase(fetchTrafficData.fulfilled, (state, action: PayloadAction<TrafficData>) => {
+      })      .addCase(fetchTrafficData.fulfilled, (state, action: PayloadAction<TrafficData>) => {
         state.loading = false;
+        
+        // Normalize incident data to ensure consistent structure
+        if (action.payload?.incidents) {
+          action.payload.incidents = action.payload.incidents.map(incident => {
+            // Create a normalized incident object
+            const normalizedIncident: TrafficIncident = {
+              ...incident,
+              // Ensure severity is in the right format
+              severity: incident.severity
+            };
+            
+            return normalizedIncident;
+          });
+        }
+        
+        // Ensure flowSegments exists
+        if (!action.payload.flowSegments) {
+          action.payload.flowSegments = [];
+        }
+        
         state.data = action.payload;
       })
       .addCase(fetchTrafficData.rejected, (state, action) => {

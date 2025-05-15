@@ -1,7 +1,2 @@
-from fastapi import FastAPI
-
-app = FastAPI()
-
-from .api import routes
-
-app.include_router(routes.router)
+# This file intentionally left empty
+# The FastAPI app is initialized in main.py

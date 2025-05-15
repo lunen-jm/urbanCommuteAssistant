@@ -1,15 +1,25 @@
 from fastapi import APIRouter, HTTPException, Query
 import requests
-from pydantic import BaseModel
-from typing import Optional, List
+import aiohttp
+from pydantic import BaseModel, Field
+from typing import Optional, List, Dict, Any, Union
 from app.core.config import Config
 import redis
 import json
 import time
 from datetime import datetime
+import logging
+from app.api.integrations.base import DataSourceAdapter
+from app.services.circuit_breaker import CircuitBreaker
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
+class WeatherQueryParams(BaseModel):
+    lat: float = Field(..., description="Latitude coordinate")
+    lon: float = Field(..., description="Longitude coordinate")
+    units: str = Field("metric", description="Units of measurement (metric, imperial, standard)")
+    
 class WeatherResponse(BaseModel):
     temperature: float
     description: str
@@ -22,6 +32,7 @@ class WeatherResponse(BaseModel):
     snow: Optional[float] = None
     dt: Optional[int] = None
     cached: Optional[bool] = None
+    source: Optional[str] = "openweathermap"
 
 class WeatherForecastItem(BaseModel):
     dt: int
@@ -35,7 +46,7 @@ class WeatherForecastItem(BaseModel):
     rain: Optional[float] = None
     snow: Optional[float] = None
     
-class WeatherService:
+class WeatherAdapter(DataSourceAdapter[WeatherQueryParams, WeatherResponse, WeatherResponse]):
     def __init__(self):
         self.api_key = Config.WEATHER_API_KEY
         self.base_url = "https://api.openweathermap.org/data/2.5"

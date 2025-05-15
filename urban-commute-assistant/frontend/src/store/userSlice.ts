@@ -3,14 +3,16 @@ import { UserState } from '../types';
 
 const initialState: UserState = {
   id: null,
-  name: null,
-  email: null,
-  token: null,
-  authenticated: false,
+  name: '',
+  email: '',
   preferences: {
-    location: null,
-    notifications: false,
-    preferredTransportModes: []
+    darkMode: false,
+    preferredTransportModes: [],
+    notificationSettings: {
+      email: false,
+      push: false,
+      sms: false
+    }
   }
 };
 

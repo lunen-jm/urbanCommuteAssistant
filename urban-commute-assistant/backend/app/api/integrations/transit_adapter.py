@@ -1,0 +1,377 @@
+import requests
+import logging
+from typing import Optional, Dict, Any, List
+import redis
+import json
+import zipfile
+from io import BytesIO
+from datetime import datetime
+from google.transit import gtfs_realtime_pb2
+
+from pydantic import BaseModel, Field
+from app.core.config import Config
+from app.api.integrations.base import DataSourceAdapter
+from app.services.circuit_breaker import CircuitBreaker, CircuitBreakerError
+from app.schemas.transit import TransitRoute, TransitStop, TripUpdate, VehiclePosition, ServiceAlert, StopTimeUpdate
+
+logger = logging.getLogger(__name__)
+
+class TransitQueryParams(BaseModel):
+    location: str = Field(..., description="Location code or name (e.g., 'seattle', 'king-county')")
+    route_id: Optional[str] = Field(None, description="Filter results by route ID")
+    stop_id: Optional[str] = Field(None, description="Filter results by stop ID")
+    include_realtime: bool = Field(True, description="Whether to include real-time data")
+
+class TransitResponse(BaseModel):
+    routes: List[TransitRoute] = []
+    stops: List[TransitStop] = []
+    trip_updates: List[TripUpdate] = []
+    vehicle_positions: List[VehiclePosition] = []
+    service_alerts: List[ServiceAlert] = []
+    cached: bool = False
+    timestamp: datetime = Field(default_factory=datetime.now)
+    source: str = "king_county_metro"
+
+class KingCountyMetroAdapter(DataSourceAdapter[TransitQueryParams, TransitResponse, TransitResponse]):
+    """
+    Adapter for King County Metro transit data
+    """
+    def __init__(self):
+        self.gtfs_url = Config.KC_METRO_GTFS_URL
+        self.gtfs_rt_url = Config.KC_METRO_GTFS_RT_URL
+        self.redis = redis.from_url(Config.REDIS_URL)
+        
+        # Feed URLs
+        self.trip_updates_url = f"{self.gtfs_rt_url}/tripupdates.pb"
+        self.vehicle_positions_url = f"{self.gtfs_rt_url}/vehiclepositions.pb"
+        self.service_alerts_url = f"{self.gtfs_rt_url}/alerts.pb"
+        
+        self.circuit_breaker = CircuitBreaker(
+            failure_threshold=3,
+            recovery_timeout=300,  # Transit data is less time-sensitive
+            name="king_county_metro"
+        )
+    
+    def get_cache_key(self, params: TransitQueryParams) -> str:
+        """Generate a cache key for the given parameters"""
+        key = f"transit:{params.location}"
+        if params.route_id:
+            key += f":{params.route_id}"
+        if params.stop_id:
+            key += f":{params.stop_id}"
+        key += f":rt_{params.include_realtime}"
+        return key
+    
+    def get_cache_ttl(self) -> int:
+        """
+        Transit schedule data TTL: 24 hours (86400 seconds)
+        Real-time data has a much shorter TTL, handled separately
+        """
+        return 86400
+    
+    def get_realtime_cache_ttl(self) -> int:
+        """Real-time transit data TTL: 1 minute (60 seconds)"""
+        return 60
+    
+    @CircuitBreaker(failure_threshold=3, recovery_timeout=300, name="kcmetro_health")
+    async def health_check(self) -> bool:
+        """Check if the King County Metro data sources are responding correctly"""
+        try:
+            # Check static GTFS data
+            response = requests.head(self.gtfs_url, timeout=5)
+            response.raise_for_status()
+            
+            # Check one of the real-time feeds
+            response = requests.head(self.trip_updates_url, timeout=5)
+            response.raise_for_status()
+            
+            return True
+        except Exception as e:
+            logger.error(f"King County Metro health check failed: {str(e)}")
+            return False
+    
+    @CircuitBreaker(failure_threshold=3, recovery_timeout=300, name="kcmetro_fetch")
+    async def fetch_data(self, params: TransitQueryParams) -> TransitResponse:
+        """Fetch transit data from King County Metro with caching"""
+        # Check cache first
+        cache_key = self.get_cache_key(params)
+        cached_data = self.redis.get(cache_key)
+        
+        if cached_data:
+            data = json.loads(cached_data)
+            # Convert string timestamps back to datetime objects
+            if "timestamp" in data:
+                data["timestamp"] = datetime.fromisoformat(data["timestamp"])
+            # Add cached flag to indicate this is from cache
+            data["cached"] = True
+            return TransitResponse(**data)
+        
+        try:
+            # Fetch static schedule data
+            static_data = await self._fetch_static_data(params)
+            
+            # Fetch real-time data if requested
+            realtime_data = {"trip_updates": [], "vehicle_positions": [], "service_alerts": []}
+            if params.include_realtime:
+                realtime_data = await self._fetch_realtime_data(params)
+            
+            # Combine the results
+            normalized_data = {
+                "routes": static_data.get("routes", []),
+                "stops": static_data.get("stops", []),
+                "trip_updates": realtime_data.get("trip_updates", []),
+                "vehicle_positions": realtime_data.get("vehicle_positions", []),
+                "service_alerts": realtime_data.get("service_alerts", []),
+                "cached": False,
+                "timestamp": datetime.now(),
+                "source": "king_county_metro"
+            }
+            
+            # Serialize datetime objects to ISO format for caching
+            cache_data = normalized_data.copy()
+            cache_data["timestamp"] = cache_data["timestamp"].isoformat()
+            
+            # Cache the normalized data - different TTL for different parts
+            if params.include_realtime:
+                # Short TTL for real-time data
+                self.redis.setex(cache_key, self.get_realtime_cache_ttl(), json.dumps(cache_data))
+            else:
+                # Longer TTL for static data
+                self.redis.setex(cache_key, self.get_cache_ttl(), json.dumps(cache_data))
+            
+            return TransitResponse(**normalized_data)
+            
+        except Exception as e:
+            logger.error(f"Error fetching transit data: {str(e)}")
+            return await self.handle_errors(e)
+    
+    async def _fetch_static_data(self, params: TransitQueryParams) -> Dict[str, Any]:
+        """Helper method to fetch static GTFS data"""
+        # Try to get from cache first - static data cached separately
+        static_cache_key = f"transit:static:{params.location}"
+        if params.route_id:
+            static_cache_key += f":{params.route_id}"
+        if params.stop_id:
+            static_cache_key += f":{params.stop_id}"
+        
+        cached_static = self.redis.get(static_cache_key)
+        if cached_static:
+            return json.loads(cached_static)
+        
+        # Download and process GTFS data
+        response = requests.get(self.gtfs_url, timeout=30)
+        response.raise_for_status()
+        
+        routes = []
+        stops = []
+        
+        with zipfile.ZipFile(BytesIO(response.content)) as z:
+            # Process routes.txt
+            if 'routes.txt' in z.namelist():
+                with z.open('routes.txt') as f:
+                    import pandas as pd
+                    routes_df = pd.read_csv(f)
+                    # Filter by route_id if provided
+                    if params.route_id:
+                        routes_df = routes_df[routes_df['route_id'] == params.route_id]
+                    
+                    for _, row in routes_df.iterrows():
+                        routes.append(TransitRoute(
+                            route_id=row['route_id'],
+                            route_short_name=row.get('route_short_name', ''),
+                            route_long_name=row.get('route_long_name', ''),
+                            route_type=int(row.get('route_type', 3)),
+                            route_color=row.get('route_color', '')
+                        ).dict())
+            
+            # Process stops.txt
+            if 'stops.txt' in z.namelist():
+                with z.open('stops.txt') as f:
+                    import pandas as pd
+                    stops_df = pd.read_csv(f)
+                    # Filter by stop_id if provided
+                    if params.stop_id:
+                        stops_df = stops_df[stops_df['stop_id'] == params.stop_id]
+                    
+                    for _, row in stops_df.iterrows():
+                        stops.append(TransitStop(
+                            stop_id=row['stop_id'],
+                            stop_name=row.get('stop_name', ''),
+                            stop_lat=float(row.get('stop_lat', 0)),
+                            stop_lon=float(row.get('stop_lon', 0)),
+                            zone_id=row.get('zone_id', ''),
+                            location_type=int(row.get('location_type', 0))
+                        ).dict())
+        
+        result = {
+            "routes": routes,
+            "stops": stops
+        }
+        
+        # Cache static data with longer TTL
+        self.redis.setex(static_cache_key, self.get_cache_ttl(), json.dumps(result))
+        
+        return result
+    
+    async def _fetch_realtime_data(self, params: TransitQueryParams) -> Dict[str, Any]:
+        """Helper method to fetch real-time GTFS-RT data"""
+        # Try to get from cache first - real-time data cached separately with short TTL
+        rt_cache_key = f"transit:rt:{params.location}"
+        if params.route_id:
+            rt_cache_key += f":{params.route_id}"
+        if params.stop_id:
+            rt_cache_key += f":{params.stop_id}"
+        
+        cached_rt = self.redis.get(rt_cache_key)
+        if cached_rt:
+            return json.loads(cached_rt)
+        
+        trip_updates = []
+        vehicle_positions = []
+        service_alerts = []
+        
+        try:
+            # Fetch trip updates
+            response = requests.get(self.trip_updates_url, timeout=10)
+            if response.status_code == 200:
+                feed = gtfs_realtime_pb2.FeedMessage()
+                feed.ParseFromString(response.content)
+                
+                for entity in feed.entity:
+                    if entity.HasField('trip_update'):
+                        trip_update = entity.trip_update
+                        
+                        # Filter by route_id if provided
+                        if params.route_id and trip_update.trip.route_id != params.route_id:
+                            continue
+                        
+                        stop_time_updates = []
+                        for stu in trip_update.stop_time_update:
+                            # Filter by stop_id if provided
+                            if params.stop_id and stu.stop_id != params.stop_id:
+                                continue
+                                
+                            stop_time_updates.append(StopTimeUpdate(
+                                stop_id=stu.stop_id,
+                                stop_sequence=stu.stop_sequence,
+                                arrival_time=stu.arrival.time if stu.HasField('arrival') else None,
+                                departure_time=stu.departure.time if stu.HasField('departure') else None,
+                                schedule_relationship=stu.schedule_relationship
+                            ).dict())
+                        
+                        # Skip if no stop_time_updates match our filters
+                        if params.stop_id and not stop_time_updates:
+                            continue
+                            
+                        trip_updates.append(TripUpdate(
+                            trip_id=trip_update.trip.trip_id,
+                            route_id=trip_update.trip.route_id,
+                            start_time=trip_update.trip.start_time,
+                            start_date=trip_update.trip.start_date,
+                            schedule_relationship=trip_update.trip.schedule_relationship,
+                            vehicle_id=trip_update.vehicle.id if trip_update.HasField('vehicle') else None,
+                            timestamp=trip_update.timestamp,
+                            stop_time_updates=stop_time_updates
+                        ).dict())
+            
+            # Fetch vehicle positions
+            response = requests.get(self.vehicle_positions_url, timeout=10)
+            if response.status_code == 200:
+                feed = gtfs_realtime_pb2.FeedMessage()
+                feed.ParseFromString(response.content)
+                
+                for entity in feed.entity:
+                    if entity.HasField('vehicle'):
+                        vehicle = entity.vehicle
+                        
+                        # Filter by route_id if provided
+                        if params.route_id and vehicle.trip.route_id != params.route_id:
+                            continue
+                            
+                        vehicle_positions.append(VehiclePosition(
+                            vehicle_id=vehicle.vehicle.id,
+                            trip_id=vehicle.trip.trip_id,
+                            route_id=vehicle.trip.route_id,
+                            position_lat=vehicle.position.latitude,
+                            position_lon=vehicle.position.longitude,
+                            bearing=vehicle.position.bearing,
+                            speed=vehicle.position.speed,
+                            timestamp=vehicle.timestamp,
+                            congestion_level=vehicle.congestion_level,
+                            occupancy_status=vehicle.occupancy_status
+                        ).dict())
+            
+            # Fetch service alerts
+            response = requests.get(self.service_alerts_url, timeout=10)
+            if response.status_code == 200:
+                feed = gtfs_realtime_pb2.FeedMessage()
+                feed.ParseFromString(response.content)
+                
+                for entity in feed.entity:
+                    if entity.HasField('alert'):
+                        alert = entity.alert
+                        
+                        # Check if this alert affects our route or stop
+                        affects_filter = False
+                        if params.route_id or params.stop_id:
+                            for informed_entity in alert.informed_entity:
+                                if params.route_id and informed_entity.route_id == params.route_id:
+                                    affects_filter = True
+                                    break
+                                if params.stop_id and informed_entity.stop_id == params.stop_id:
+                                    affects_filter = True
+                                    break
+                            
+                            # Skip if doesn't affect our filters
+                            if not affects_filter:
+                                continue
+                        
+                        service_alerts.append(ServiceAlert(
+                            alert_id=entity.id,
+                            cause=alert.cause,
+                            effect=alert.effect,
+                            header_text=alert.header_text.translation[0].text if alert.header_text.translation else "",
+                            description_text=alert.description_text.translation[0].text if alert.description_text.translation else ""
+                        ).dict())
+                        
+        except Exception as e:
+            logger.error(f"Error parsing GTFS-RT data: {str(e)}")
+        
+        result = {
+            "trip_updates": trip_updates,
+            "vehicle_positions": vehicle_positions,
+            "service_alerts": service_alerts
+        }
+        
+        # Cache real-time data with short TTL
+        self.redis.setex(rt_cache_key, self.get_realtime_cache_ttl(), json.dumps(result))
+        
+        return result
+    
+    async def handle_errors(self, error: Any) -> Optional[TransitResponse]:
+        """Handle API errors and provide fallback data if possible"""
+        logger.error(f"Transit API error: {str(error)}")
+        
+        # If circuit breaker is triggered, don't even try to get fallback data
+        if isinstance(error, CircuitBreakerError):
+            raise error
+        
+        # Try to get last cached data for any location as a very basic fallback
+        try:
+            fallback_data = self.redis.get("transit:fallback")
+            if fallback_data:
+                data = json.loads(fallback_data)
+                # Convert string timestamps back to datetime objects
+                if "timestamp" in data:
+                    data["timestamp"] = datetime.fromisoformat(data["timestamp"])
+                
+                data["cached"] = True
+                data["source"] = "fallback"
+                return TransitResponse(**data)
+        except Exception as fallback_error:
+            logger.error(f"Error getting fallback transit data: {str(fallback_error)}")
+        
+        # If no fallback is available, provide an empty response
+        return TransitResponse(
+            source="default_fallback"
+        )

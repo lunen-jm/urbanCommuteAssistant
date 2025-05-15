@@ -22,7 +22,7 @@ export interface Notification {
 export interface TrafficIncident {
     id: string;
     type: string;
-    severity: 'Low' | 'Medium' | 'High';
+    severity: 'Low' | 'Medium' | 'High'; // Only use string formats
     description: string;
     location: string;
     coordinates: {
@@ -75,6 +75,7 @@ export interface TrafficData {
     congestionLevel: 'Low' | 'Moderate' | 'High';
     incidents: TrafficIncident[];
     lastUpdated: string;
+    flowSegments: FlowSegment[];
 }
 
 // Redux store root state
@@ -89,20 +90,17 @@ export interface RootState {
 
 export interface UserState {
     id: string | null;
-    name: string | null;
-    email: string | null;
-    token: string | null;
-    authenticated: boolean;
+    name: string;
+    email: string;
     preferences: {
-        location: string | null;
-        notifications: boolean;
+        darkMode: boolean;
         preferredTransportModes: string[];
-        notificationChannels?: string[];
-        theme?: 'light' | 'dark' | 'system';
-        language?: string;
-        autoRefresh?: boolean;
-        refreshInterval?: number;
-    };
+        notificationSettings: {
+            email: boolean;
+            push: boolean;
+            sms: boolean;
+        }
+    }
 }
 
 export interface TransitDataState {
@@ -136,6 +134,18 @@ export interface TrafficState {
     data: TrafficData | null;
     loading: boolean;
     error: string | null;
+}
+
+export interface FlowSegment {
+    id?: string;
+    currentSpeed: number;
+    freeFlowSpeed: number;
+    location?: {
+        lat: number;
+        lng: number;
+    };
+    roadName?: string;
+    length?: number;
 }
 
 // Import and re-export auth types

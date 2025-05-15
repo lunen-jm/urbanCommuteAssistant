@@ -29,5 +29,16 @@ The Urban Commute Assistant is an interactive real-time web application designed
 ## Special Constraints
 - Compliance with data privacy regulations, specifically the California Consumer Privacy Act (CCPA), regarding management and protection of user data.
 
+## API Integration
+
+For a successful deployment, you'll need to set up external API keys for weather, traffic, and transit data. See [API Integration Guide](./API_INTEGRATION.md) for detailed instructions on:
+
+- Setting up required API keys
+- Configuring environment variables
+- Verifying API health
+- Troubleshooting common issues
+
+## Getting Started
+
 ## Expected Outcome
 - Enhanced quality of life for users through improved daily decision-making, minimized commuting stress, and increased adaptability to urban disruptions.

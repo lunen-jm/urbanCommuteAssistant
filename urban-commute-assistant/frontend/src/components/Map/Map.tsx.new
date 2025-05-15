@@ -1,0 +1,105 @@
+import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+import { useLocation } from '../../hooks/useLocation';
+import { useTransitData } from '../../hooks/useTransitData';
+import './Map.css';
+
+// Define types
+interface MapMarker {
+    position: L.LatLngExpression;
+    message: string;
+}
+
+interface LocationCoordinates {
+    latitude: number;
+    longitude: number;
+}
+
+// Component to recenter the map when user location changes
+const MapRecenter: React.FC<{ center: [number, number] }> = ({ center }) => {
+    const map = useMap();
+    
+    useEffect(() => {
+        if (center) {
+            map.setView(center);
+        }
+    }, [center, map]);
+    
+    return null;
+};
+
+const Map: React.FC = () => {
+    const initialCenter: [number, number] = [47.6062, -122.3321]; // Seattle
+    const initialZoom = 12;
+    const [mapCenter, setMapCenter] = useState<[number, number]>(initialCenter);
+    
+    const { userLocation, error } = useLocation();
+    const { transitData } = useTransitData(userLocation as LocationCoordinates | null);
+    const [markers, setMarkers] = useState<MapMarker[]>([]);
+
+    useEffect(() => {
+        if (transitData) {
+            // Check if transitData is an array or a single object with routes/stops
+            const newMarkers: MapMarker[] = [];
+            
+            // Handle the case where transitData has stops property (as defined in our types.ts)
+            if (transitData.stops && Array.isArray(transitData.stops)) {
+                transitData.stops.forEach(stop => {
+                    if (stop.lat && stop.lon) {
+                        newMarkers.push({
+                            position: [stop.lat, stop.lon] as L.LatLngExpression,
+                            message: stop.name || 'Transit Stop',
+                        });
+                    }
+                });
+            }
+            
+            setMarkers(newMarkers);
+        }
+    }, [transitData]);
+
+    useEffect(() => {
+        if (userLocation) {
+            setMapCenter([userLocation.latitude, userLocation.longitude]);
+        }
+    }, [userLocation]);
+
+    return (
+        <div className="map-container">
+            <MapContainer 
+                center={mapCenter} 
+                zoom={initialZoom} 
+                style={{ height: '100%', width: '100%' }}
+            >
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                
+                {userLocation && (
+                    <Marker position={[userLocation.latitude, userLocation.longitude]}>
+                        <Popup>You are here</Popup>
+                    </Marker>
+                )}
+                
+                {markers.map((marker, index) => (
+                    <Marker key={index} position={marker.position}>
+                        <Popup>{marker.message}</Popup>
+                    </Marker>
+                ))}
+                
+                <MapRecenter center={mapCenter} />
+            </MapContainer>
+            
+            {error && (
+                <div className="map-error">
+                    Error getting location: {error}
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default Map;

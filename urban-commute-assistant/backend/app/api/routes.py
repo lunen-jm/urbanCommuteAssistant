@@ -7,6 +7,7 @@ from app.api.integrations.traffic import router as traffic_router
 from app.api.integrations.weather import router as weather_router
 from app.api.integrations.transit import router as transit_router
 from app.api.auth import router as auth_router
+from app.api.routes.integrated_data import router as integrated_data_router
 from app.core.config import Config
 from app.services.data_aggregator import EnhancedDataAggregator
 from app.services.normalizer import DataNormalizer
@@ -22,6 +23,9 @@ router.include_router(auth_router, prefix="/auth", tags=["authentication"])
 router.include_router(traffic_router)
 router.include_router(weather_router)
 router.include_router(transit_router)
+
+# Include enhanced data router with modern adapter pattern implementation
+router.include_router(integrated_data_router, prefix="/data", tags=["integrated-data"])
 
 # Helper function to get Redis connection
 def get_redis():

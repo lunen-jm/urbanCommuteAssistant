@@ -211,3 +211,24 @@ services:
     * Set up production environment
     * Implement monitoring
     * Performance optimization
+  ## 9. Current Issues to Address
+  
+~~Data Integration Gap: According to the README.md progress notes, "Data initial dashboard is sample data as APIs are not fully integrated" - this needs to be resolved for proper UI functionality.~~ ✓ RESOLVED: Implemented Adapter Pattern for API integrations with proper error handling and caching.
+
+Frontend-Backend Connectivity: The deployGuide.md troubleshooting section mentions potential issues with:
+
+✓ RESOLVED: CORS errors - Updated CORS configuration in main.py
+✓ RESOLVED: API connection problems - Added health check endpoint and API tester
+✓ RESOLVED: Environment variable misconfigurations (VITE_API_URL) - Updated .env.example with clear instructions
+
+Component Integration Complexity: Your component architecture shows multiple nested components that need proper coordination:
+
+Map Components (InteractiveMap, RouteOverlay, DisruptionMarkers)
+Data Visualization components
+User Interface components
+State Management Implementation: The Redux store needs proper configuration for all the planned slices mentioned in section 3.3:
+
+User data and authentication
+Map configuration
+Transit/traffic information
+Notification preferences

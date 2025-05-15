@@ -1,24 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, MapContainerProps } from 'react-leaflet';
+import React, { useState, useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { useTransitData } from '../../hooks/useTransitData';
 import useLocation from '../../hooks/useLocation';
-import L from 'leaflet'; 
+import { useTransitData } from '../../hooks/useTransitData';
+import './Map.css';
 
-// Ensure Icon assets are properly loaded for leaflet
-import icon from 'leaflet/dist/images/marker-icon.png';
-import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-
-let DefaultIcon = L.icon({
-  iconUrl: icon,
-  shadowUrl: iconShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41]
-});
-
-L.Marker.prototype.options.icon = DefaultIcon;
-
-// Define a type for the markers
+// Define types
 interface MapMarker {
     position: L.LatLngExpression;
     message: string;
@@ -29,56 +17,83 @@ interface LocationCoordinates {
     longitude: number;
 }
 
-// Type for extended MapContainer props
-interface ExtendedMapContainerProps extends MapContainerProps {
-    center: L.LatLngExpression;
-}
-
-// Default center coordinates if user location is null
-const DEFAULT_CENTER: L.LatLngExpression = [51.505, -0.09]; // Example: London
-
 const Map: React.FC = () => {
-    const { userLocation } = useLocation();
+    const initialCenter: [number, number] = [47.6062, -122.3321]; // Seattle
+    const initialZoom = 12;
+    const [mapCenter, setMapCenter] = useState<[number, number]>(initialCenter);
+    
+    const { userLocation, error } = useLocation();
     const { transitData } = useTransitData(userLocation as LocationCoordinates | null);
     const [markers, setMarkers] = useState<MapMarker[]>([]);
 
     useEffect(() => {
         if (transitData) {
-            const newMarkers = transitData.map((data: any) => ({
-                position: [data.latitude, data.longitude] as L.LatLngExpression,
-                message: data.message,
-            }));
+            // Check if transitData is an array and process transit stops
+            const newMarkers: MapMarker[] = [];
+            
+            if (Array.isArray(transitData)) {
+                // Handle array format (each item represents a transit point)
+                transitData.forEach((data: any) => {
+                    if (data.latitude && data.longitude) {
+                        newMarkers.push({
+                            position: [data.latitude, data.longitude] as L.LatLngExpression,
+                            message: data.name || 'Transit Stop',
+                        });
+                    }
+                });
+            } else if (transitData.stops && Array.isArray(transitData.stops)) {
+                // Handle object format with stops array
+                transitData.stops.forEach((stop: any) => {
+                    if (stop.lat && stop.lon) {
+                        newMarkers.push({
+                            position: [stop.lat, stop.lon] as L.LatLngExpression,
+                            message: stop.name || 'Transit Stop',
+                        });
+                    }
+                });
+            }
+            
             setMarkers(newMarkers);
         }
     }, [transitData]);
 
-    // Determine map center, use default if userLocation is null
-    const mapCenter = userLocation
-        ? [userLocation.latitude, userLocation.longitude] as L.LatLngExpression
-        : DEFAULT_CENTER;
+    useEffect(() => {
+        if (userLocation) {
+            setMapCenter([userLocation.latitude, userLocation.longitude]);
+        }
+    }, [userLocation]);
 
     return (
-        <MapContainer 
-            key={mapCenter.toString()} 
-            center={mapCenter} 
-            zoom={13} 
-            style={{ height: '100vh', width: '100%' }}
-        >
-            <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            />
-            {markers.map((marker, index) => (
-                <Marker key={index} position={marker.position}>
-                    <Popup>{marker.message}</Popup>
-                </Marker>
-            ))}
-            {userLocation && (
-                <Marker position={[userLocation.latitude, userLocation.longitude]}>
-                    <Popup>Your Location</Popup>
-                </Marker>
-            )}
-        </MapContainer>
+        <div className="map-container">
+            <MapContainer 
+                center={mapCenter} 
+                zoom={initialZoom} 
+                style={{ height: '100%', width: '100%' }}
+                key={`${mapCenter[0]}-${mapCenter[1]}`} // Force re-render on center change
+            >
+                <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                
+                {userLocation && (
+                    <Marker position={[userLocation.latitude, userLocation.longitude]}>
+                        <Popup>You are here</Popup>
+                    </Marker>
+                )}
+                
+                {markers.map((marker, index) => (
+                    <Marker key={index} position={marker.position}>
+                        <Popup>{marker.message}</Popup>
+                    </Marker>
+                ))}
+            </MapContainer>
+            
+            {error && (
+                <div className="map-error">
+                    Error getting location: {error}
+                </div>
+            )}        </div>
     );
 };
 
