@@ -1,11 +1,15 @@
 import React from 'react';
 import Dashboard from '../components/Dashboard/Dashboard';
 import MapContainerComponent from '../components/Map/MapContainer';
+import RecommendedRouteMobile from '../components/Dashboard/RecommendedRouteMobile';
 import './Home.css';
 
 const Home = () => {
   return (
     <div className="home-container">
+      <div className="mobile-recommended-route">
+        <RecommendedRouteMobile />
+      </div>
       <div className="map-section">
         <MapContainerComponent />
       </div>

@@ -5,12 +5,22 @@
 }
 
 .header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  position: relative;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+}
+
+.logo {
+  flex: 1;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1976d2;
 }
 
 .logo a {
@@ -21,7 +31,9 @@
 }
 
 .nav-container {
+  flex: 2;
   display: flex;
+  justify-content: center;
   align-items: center;
 }
 
@@ -48,7 +60,9 @@
 }
 
 .auth-nav {
+  flex: 1;
   display: flex;
+  justify-content: flex-end;
   align-items: center;
 }
 
@@ -72,7 +86,13 @@
 @media (max-width: 768px) {
   .header-container {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: stretch;
+    justify-content: flex-start;
+  }
+  
+  .logo {
+    text-align: center;
+    margin-bottom: 0.5rem;
   }
   
   .nav-container {
@@ -96,6 +116,7 @@
   }
   
   .auth-nav {
-    align-self: flex-start;
+    justify-content: center;
+    margin-top: 0.5rem;
   }
 }

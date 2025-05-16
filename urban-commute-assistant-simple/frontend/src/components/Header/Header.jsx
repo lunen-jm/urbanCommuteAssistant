@@ -16,27 +16,13 @@ const Header = () => {
 
   return (
     <header className="app-header">
-      <div className="header-container">        <div className="logo">
+      <div className="header-container">
+        <div className="logo">
           <Link to="/">Urban Commute Assistant</Link>
         </div>
-        
         <div className="nav-container">
           <LocationSelector />
-          
-          <nav className="main-nav">
-            <ul>
-              <li>
-                <Link to="/">Dashboard</Link>
-              </li>
-              {isAuthenticated && (
-                <li>
-                  <Link to="/settings">Settings</Link>
-                </li>
-              )}
-            </ul>
-          </nav>
         </div>
-        
         <div className="auth-nav">
           {isAuthenticated ? (
             <button className="logout-button" onClick={handleLogout}>
