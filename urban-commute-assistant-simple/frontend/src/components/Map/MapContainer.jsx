@@ -61,16 +61,22 @@ const MapContainerComponent = () => {
   const selectedDest = user.savedLocations.find(loc => loc.id === user.selectedLocation);
   const destPos = selectedDest ? [selectedDest.lat, selectedDest.lng] : null;
 
-  // Fetch route when both positions are available
+  // Fetch route when both positions are available, but only once per change
   useEffect(() => {
+    let cancelled = false;
     setRouteCoords(null);
     setRouteError(null);
     if (currentPos && destPos) {
       getRouteTomTom(currentPos, destPos)
-        .then(coords => setRouteCoords(coords))
-        .catch(err => setRouteError('Could not fetch route.'));
+        .then(coords => {
+          if (!cancelled) setRouteCoords(coords);
+        })
+        .catch(err => {
+          if (!cancelled) setRouteError('Could not fetch route.');
+        });
     }
-  }, [currentPos, destPos]);
+    return () => { cancelled = true; };
+  }, [currentPos?.[0], currentPos?.[1], destPos?.[0], destPos?.[1]]);
 
   // Default to Seattle if no user location
   const defaultPosition = [47.6062, -122.3321];
