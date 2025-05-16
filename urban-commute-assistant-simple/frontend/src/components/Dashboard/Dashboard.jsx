@@ -36,19 +36,46 @@ const Dashboard = () => {
   
   useEffect(() => {
     // Fetch all data when component mounts
-    dispatch(fetchWeatherData(location));
-    dispatch(fetchTrafficData(location));
-    dispatch(fetchTransitData(location));
-    
+    // Always use user's current location for transit, not destination
+    const currentLocation = user.location || defaultLocation;
+    dispatch(fetchWeatherData(currentLocation));
+    dispatch(fetchTrafficData(currentLocation));
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          dispatch(fetchTransitData({ lat: latitude, lng: longitude }));
+        },
+        () => {
+          // Fallback to stored location if geolocation fails
+          dispatch(fetchTransitData(currentLocation));
+        }
+      );
+    } else {
+      dispatch(fetchTransitData(currentLocation));
+    }
+
     // Optional: Set up periodic refresh
     const refreshInterval = setInterval(() => {
-      dispatch(fetchWeatherData(location));
-      dispatch(fetchTrafficData(location));
-      dispatch(fetchTransitData(location));
+      dispatch(fetchWeatherData(currentLocation));
+      dispatch(fetchTrafficData(currentLocation));
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const { latitude, longitude } = pos.coords;
+            dispatch(fetchTransitData({ lat: latitude, lng: longitude }));
+          },
+          () => {
+            dispatch(fetchTransitData(currentLocation));
+          }
+        );
+      } else {
+        dispatch(fetchTransitData(currentLocation));
+      }
     }, 300000); // Refresh every 5 minutes
-    
+
     return () => clearInterval(refreshInterval);
-  }, [dispatch, location]);
+  }, [dispatch, user.location]);
 
   // Determine optimal commute method (same logic as CommuteSuggestions)
   let recommendation = 'Driving';

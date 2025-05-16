@@ -8,11 +8,12 @@ const testUser = {
   id: '1',
   name: 'Test User',
   email: 'testuser@example.com',
-  location: { lat: 47.6062, lng: -122.3321 }, // Seattle
+  location: { lat: 47.620682, lng: -122.151613 }, // 1230 140th Pl NE, Bellevue, WA 98007
   savedLocations: [
-    { id: '1', name: 'Home', lat: 47.6062, lng: -122.3321 }, // Seattle
-    { id: '2', name: 'Work', lat: 47.6097, lng: -122.3331 }, // Downtown Seattle
-    { id: '3', name: 'Gym', lat: 47.6205, lng: -122.3493 } // South Lake Union
+    { id: '1', name: 'Home', lat: 47.620682, lng: -122.151613 }, // 1230 140th Pl NE, Bellevue, WA 98007
+    { id: '2', name: 'Work', lat: 47.6396, lng: -122.1280 }, // Microsoft Redmond Campus
+    { id: '3', name: 'Gym', lat: 47.6234, lng: -122.1371 }, // Crossroads Planet Fitness Bellevue
+    { id: '4', name: 'School', lat: 47.6175, lng: -122.1926 } // GIX Bellevue
   ],
   selectedLocation: '1', // ID of the selected location
   useCurrentLocation: false, // Flag to use browser's geolocation
@@ -85,12 +86,17 @@ const userSlice = createSlice({
     },
     selectSavedLocation: (state, action) => {
       state.selectedLocation = action.payload;
-      // Find the selected location and update current location
-      const selectedLocation = state.savedLocations.find(loc => loc.id === action.payload);
-      if (selectedLocation) {
-        state.location = { lat: selectedLocation.lat, lng: selectedLocation.lng };
+      // If Home is selected, use geolocation
+      if (action.payload === '1') {
+        state.useCurrentLocation = true;
+      } else {
+        // Find the selected location and update current location
+        const selectedLocation = state.savedLocations.find(loc => loc.id === action.payload);
+        if (selectedLocation) {
+          state.location = { lat: selectedLocation.lat, lng: selectedLocation.lng };
+        }
+        state.useCurrentLocation = false;
       }
-      state.useCurrentLocation = false;
     },
     addSavedLocation: (state, action) => {
       // Generate a new ID - in a real app you'd want to ensure uniqueness

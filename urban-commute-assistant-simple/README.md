@@ -1,36 +1,38 @@
 # Urban Commute Assistant - Simplified
 
-A simplified version of the Urban Commute Assistant application with a modern, mobile-friendly UI and a clear, modular architecture.
+A modern, mobile-friendly commute assistant for the Seattle/Eastside area, featuring real-time weather, traffic, transit, and smart commute recommendations. The UI is responsive and optimized for both desktop and mobile.
 
 ## Features
 
-- **Weather Information**: Get real-time weather data for your location
-- **Traffic Updates**: View traffic incidents and conditions in your area
-- **Transit Options**: Explore nearby public transit options
-- **Commute Recommendations**: Receive smart commute suggestions based on current conditions
-- **Interactive Map**: See your current location, select a destination, and view recommended routes
-- **Mobile-First Design**: Responsive layout for both desktop and mobile
+- **Weather Information:** Real-time weather for your current or selected location
+- **Traffic Updates:** Live traffic incidents and congestion
+- **Transit Options:** Nearby public transit stops and arrivals (uses your current location)
+- **Commute Recommendations:** Smart suggestions based on weather, traffic, and transit
+- **Interactive Map:** View your location, select a destination, and see recommended routes
+- **ETA Calculation:** See estimated travel time for the recommended route
+- **Mobile-First Design:** Fully responsive layout
+- **Custom Locations:** Home, Work, Gym, and School (all set to real local addresses)
 
-## Project Structure
+## Current Architecture
 
 ```
 urban-commute-assistant-simple/
-├── frontend/                 # React frontend application
+├── frontend/                 # React app (Vite, Redux, Leaflet for maps)
 │   ├── public/               # Static assets
-│   ├── src/                  # React source code
-│   │   ├── components/       # React components (Map, Header, Dashboard, etc.)
+│   ├── src/
+│   │   ├── components/       # UI components (Map, Header, Dashboard, etc.)
 │   │   ├── pages/            # Page components (Home, Login, Settings)
-│   │   ├── services/         # API and routing services
-│   │   └── store/            # Redux store
+│   │   ├── services/         # API and routing logic
+│   │   └── store/            # Redux slices (user, weather, traffic, transit)
 │   ├── package.json          # Frontend dependencies
-│   └── vite.config.js        # Vite configuration
-├── backend/                  # FastAPI backend application
-│   ├── api/                  # API routes and services
-│   ├── models/               # Database models
+│   └── vite.config.js        # Vite config
+├── backend/                  # FastAPI backend (Python 3.11+)
+│   ├── api/                  # API routes (weather, traffic, transit)
+│   ├── models/               # Database models (if used)
 │   ├── utils/                # Utility functions
-│   ├── config.py             # Configuration settings
+│   ├── config.py             # Settings
 │   └── requirements.txt      # Python dependencies
-├── Setup-Environment.ps1     # Script to set up Python 3.11.5 environment
+├── Setup-Environment.ps1     # Script to set up Python environment
 ├── Start-Urban-Commute.ps1   # Script to start both frontend and backend
 └── README.md                 # Project documentation
 ```
@@ -38,76 +40,55 @@ urban-commute-assistant-simple/
 ## Getting Started
 
 ### Prerequisites
-
-- Python 3.11.5 (recommended for backend)
-- Node.js 14+
+- Python 3.11.5 (backend)
+- Node.js 14+ (frontend)
 - npm or yarn
-- pyenv-win (optional, for managing Python versions)
 
 ### Setup
-
 1. **Clone the repository:**
    ```
    git clone https://github.com/your-username/urban-commute-assistant-simple.git
    cd urban-commute-assistant-simple
    ```
-
 2. **Install dependencies and set up environments:**
    - Run the setup script (recommended):
      ```
      .\Setup-Environment.ps1
      ```
    - Or follow manual setup instructions in the README for backend and frontend.
-
 3. **Configure API Keys:**
    - Copy `.env.example` to `.env` in both `frontend/` and `backend/`.
    - Add your API keys:
      - `VITE_TOMTOM_API_KEY` (frontend) for routing and map features
      - `WEATHER_API_KEY` and `TRAFFIC_API_KEY` (backend) for weather and traffic
    - Restrict your TomTom API key to your Netlify or production domain for security.
-
 4. **Start the application:**
    ```
    .\Start-Urban-Commute.ps1
    ```
    This will launch both frontend and backend servers.
 
-## How to Add Your Own Locations
+## How to Add or Edit Locations
 
-By default, the app includes a few sample locations (Home, Work, Gym in Seattle). To add your own saved locations:
-
-1. **In the App UI:**
-   - Use the location dropdown at the top to select a destination.
-   - If the UI supports adding locations (look for an "+" or "Add Location" button), use it to input a name and coordinates.
-   - If not, you can edit the initial locations in the Redux store:
-     - Open `frontend/src/store/userSlice.js`.
-     - Find the `testUser.savedLocations` array and add your own objects:
-       ```js
-       savedLocations: [
-         { id: '1', name: 'Home', lat: 47.6062, lng: -122.3321 },
-         { id: '2', name: 'Work', lat: 47.6097, lng: -122.3331 },
-         { id: '3', name: 'Gym', lat: 47.6205, lng: -122.3493 },
-         // Add your own:
-         { id: '4', name: 'School', lat: 47.65, lng: -122.35 }
-       ]
-       ```
-     - Save and restart the frontend server to see your changes.
-
-2. **(Optional) Implement a UI for adding/removing locations:**
-   - The Redux store and actions support adding locations. You can build a form or button in the UI to dispatch the `addSavedLocation` action.
+- The app includes four default locations:
+  - **Home:** House in Bellevue
+  - **Work:** Microsoft Redmond Campus
+  - **Gym:** Crossroads Planet Fitness, Bellevue
+  - **School:** Global Innovation Exchange (GIX), Bellevue
+- To change these, edit the `savedLocations` array in `frontend/src/store/userSlice.js` and restart the frontend.
+- Transit options always use your current location (via browser geolocation) for accuracy.
 
 ## Next Steps
-
-- Deploy the app to Netlify (frontend) and Render or another service (backend).
-- Set your production API keys and domain restrictions.
-- Invite users to log in and try the commute assistant.
-- For further customization, see the `src/components/` directory for UI and logic, and `src/store/` for state management.
+- Add user profiles instead of one default user
+- Add in styling and create an overall design & creative direction
+- Make it work faster, optimize API usage
+- Allow more profile customization
+- Add in functinoality and user preferences LLM in the backend
 
 ## Troubleshooting
-
 - If the map or routing does not work, check your TomTom API key and domain restrictions.
 - If you see CORS or API errors, ensure both frontend and backend URLs are correct in your `.env` files.
-- For more help, see the troubleshooting section in this README or run `.\Debug-Application.ps1`.
+- For more help, see the troubleshooting section in this README or run `./Debug-Application.ps1`.
 
 ---
 
