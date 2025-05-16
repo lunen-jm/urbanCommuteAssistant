@@ -9,9 +9,24 @@ import { fetchTrafficData } from '../../store/trafficSlice';
 import { fetchTransitData } from '../../store/transitSlice';
 import './Dashboard.css';
 
+function getCardOrder(recommendation) {
+  // Returns an array of card names in order
+  if (recommendation === 'Public Transit') {
+    return ['Transit', 'Weather', 'Traffic'];
+  }
+  if (recommendation === 'Walking') {
+    return ['Weather', 'Transit', 'Traffic'];
+  }
+  // Default to Driving
+  return ['Traffic', 'Transit', 'Weather'];
+}
+
 const Dashboard = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
+  const weather = useSelector((state) => state.weather.data);
+  const traffic = useSelector((state) => state.traffic.data);
+  const transit = useSelector((state) => state.transit.data);
   
   // Default location (Seattle)
   const defaultLocation = { lat: 47.6062, lng: -122.3321 };
@@ -34,31 +49,35 @@ const Dashboard = () => {
     
     return () => clearInterval(refreshInterval);
   }, [dispatch, location]);
+
+  // Determine optimal commute method (same logic as CommuteSuggestions)
+  let recommendation = 'Driving';
+  if (traffic && traffic.incidents && traffic.incidents.length > 3) {
+    recommendation = 'Public Transit';
+  } else if (weather && weather.description && weather.description.toLowerCase().includes('rain')) {
+    recommendation = 'Public Transit';
+  } else if (weather && weather.description && weather.description.toLowerCase().includes('clear')) {
+    recommendation = 'Walking';
+  }
+  const cardOrder = getCardOrder(recommendation);
+
+  // Card components map
+  const cardComponents = {
+    'Weather': <WeatherSummary />,
+    'Traffic': <TrafficSummary />,
+    'Transit': <TransitSummary />,
+  };
   
   return (
-    <div className="dashboard">
-      <div className="dashboard-header">
-        <h2>Your Urban Commute Dashboard</h2>
-        {user.name && <p className="welcome-message">Welcome, {user.name}!</p>}
+    <div className="dashboard-vertical">
+      <div className="dashboard-card commute-card">
+        <CommuteSuggestions />
       </div>
-      
-      <div className="dashboard-grid">
-        <div className="dashboard-card">
-          <WeatherSummary />
+      {cardOrder.map((name) => (
+        <div className="dashboard-card" key={name}>
+          {cardComponents[name]}
         </div>
-        
-        <div className="dashboard-card">
-          <TrafficSummary />
-        </div>
-        
-        <div className="dashboard-card">
-          <TransitSummary />
-        </div>
-        
-        <div className="dashboard-card wide-card">
-          <CommuteSuggestions />
-        </div>
-      </div>
+      ))}
     </div>
   );
 };

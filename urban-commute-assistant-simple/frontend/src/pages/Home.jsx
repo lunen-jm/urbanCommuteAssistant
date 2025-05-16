@@ -9,7 +9,6 @@ const Home = () => {
       <div className="map-section">
         <MapContainerComponent />
       </div>
-      
       <div className="dashboard-section">
         <Dashboard />
       </div>
