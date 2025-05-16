@@ -17,9 +17,8 @@ class Settings(BaseSettings):
     
     # Security
     SECRET_KEY: str = os.environ.get("SECRET_KEY", "your-secret-key-for-dev-replace-in-production")
-    
-    # CORS
-    CORS_ORIGINS: list = ["*"]
+      # CORS
+    CORS_ORIGINS: list = ["*", "https://urbancommuteassistant.netlify.app"]
     
     # Logging
     LOG_LEVEL: str = "INFO"
