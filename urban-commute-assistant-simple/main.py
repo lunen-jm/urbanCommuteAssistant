@@ -1,21 +1,24 @@
 """
-Main module for FastAPI application - Used as entry point for Render deployment
+Entry point for the FastAPI application for Render deployment.
+This file imports the app from backend/api/main.py and exposes it for uvicorn.
 """
-# Import sys and os early
 import sys
 import os
 
-# Add the backend directory to sys.path
-sys.path.append(os.path.join(os.path.dirname(__file__), 'backend'))
+# Add backend/api directory to Python path
+base_dir = os.path.dirname(__file__)
+api_dir = os.path.join(base_dir, 'backend', 'api')
+sys.path.insert(0, api_dir)
 
-# Import the FastAPI app from api.main
-from backend.api.main import app as application
+# Import the FastAPI app
+def get_app():
+    from main import app
+    return app
 
-# Export the application
-app = application
+app = get_app()
 
-# This allows this file to be run directly by Render
+del get_app
+
 if __name__ == "__main__":
     import uvicorn
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000)
