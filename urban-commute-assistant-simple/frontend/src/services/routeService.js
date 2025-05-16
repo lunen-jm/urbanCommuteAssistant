@@ -16,8 +16,15 @@ export async function getRouteTomTom(from, to) {
     travelMode: 'car',
   };
   const response = await axios.get(url, { params });
-  // Extract polyline from response
-  const points = response.data.routes?.[0]?.legs?.[0]?.points;
+  // Extract polyline and ETA from response
+  const route = response.data.routes?.[0];
+  const points = route?.legs?.[0]?.points;
+  const summary = route?.summary;
   if (!points) throw new Error('No route found');
-  return points.map(pt => [pt.latitude, pt.longitude]);
+  // ETA in seconds
+  const etaSeconds = summary?.travelTimeInSeconds;
+  return {
+    coords: points.map(pt => [pt.latitude, pt.longitude]),
+    etaSeconds: etaSeconds || null,
+  };
 }

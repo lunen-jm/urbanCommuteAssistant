@@ -345,6 +345,10 @@
     font-weight: 500;
     box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
     gap: 0.5rem;
+    width: 100vw;
+    max-width: 100vw;
+    margin: 0 auto 0.5rem auto;
+    justify-content: center;
   }
   .recommended-route-mobile .label {
     font-weight: 400;
@@ -354,6 +358,14 @@
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.04em;
+  }
+  .recommended-route-mobile .eta {
+    font-weight: 400;
+    margin-left: 0.75rem;
+    font-size: 1rem;
+    background: rgba(255,255,255,0.12);
+    border-radius: 4px;
+    padding: 0.15rem 0.6rem;
   }
 }
 
@@ -384,5 +396,35 @@
 }
 
 .recommended-route-mobile {
-  display: none;
+  display: flex;
+  align-items: center;
+  background: #1976d2;
+  color: #fff;
+  border-radius: 6px;
+  padding: 0.5rem 1.2rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+  gap: 0.5rem;
+  width: 100vw;
+  max-width: 100vw;
+  margin: 0 auto 0.5rem auto;
+  justify-content: center;
+}
+.recommended-route-mobile .label {
+  font-weight: 400;
+  opacity: 0.85;
+}
+.recommended-route-mobile .mode {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.recommended-route-mobile .eta {
+  font-weight: 400;
+  margin-left: 0.75rem;
+  font-size: 1rem;
+  background: rgba(255,255,255,0.12);
+  border-radius: 4px;
+  padding: 0.15rem 0.6rem;
 }

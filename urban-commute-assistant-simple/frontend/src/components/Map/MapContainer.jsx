@@ -49,7 +49,7 @@ const CurrentLocationMarker = ({ onLocation }) => {
   );
 };
 
-const MapContainerComponent = () => {
+const MapContainerComponent = ({ setEta }) => {
   const user = useSelector((state) => state.user);
   const traffic = useSelector((state) => state.traffic);
   const transit = useSelector((state) => state.transit);
@@ -68,8 +68,21 @@ const MapContainerComponent = () => {
     setRouteError(null);
     if (currentPos && destPos) {
       getRouteTomTom(currentPos, destPos)
-        .then(coords => {
-          if (!cancelled) setRouteCoords(coords);
+        .then(({ coords, etaSeconds }) => {
+          if (!cancelled) {
+            setRouteCoords(coords);
+            if (setEta) {
+              let etaStr = '';
+              if (etaSeconds != null) {
+                const min = Math.round(etaSeconds / 60);
+                etaStr = min < 1 ? '<1 min' : `${min} min`;
+              } else {
+                etaStr = 'N/A';
+              }
+              localStorage.setItem('route_eta', etaStr);
+              setEta(etaStr);
+            }
+          }
         })
         .catch(err => {
           if (!cancelled) setRouteError('Could not fetch route.');

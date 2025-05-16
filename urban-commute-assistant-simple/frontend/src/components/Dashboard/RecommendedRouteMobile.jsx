@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 
-const RecommendedRouteMobile = () => {
+const RecommendedRouteMobile = ({ eta }) => {
   const weather = useSelector((state) => state.weather.data);
   const traffic = useSelector((state) => state.traffic.data);
   const transit = useSelector((state) => state.transit.data);
@@ -20,6 +20,9 @@ const RecommendedRouteMobile = () => {
     <div className="recommended-route-mobile">
       <span className="label">Recommended:</span>
       <span className="mode">{recommendation}</span>
+      {eta && (
+        <span className="eta">ETA: {eta}</span>
+      )}
     </div>
   );
 };
