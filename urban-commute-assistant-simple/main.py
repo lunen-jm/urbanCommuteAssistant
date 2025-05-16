@@ -1,23 +1,23 @@
 """
 Entry point for the FastAPI application for Render deployment.
-This file imports the app from backend/api/main.py and exposes it for uvicorn.
+This file loads the app from backend/api/main.py using importlib, bypassing module path issues.
 """
-import sys
+import importlib.util
 import os
+import sys
 
-# Add backend/api directory to Python path
-base_dir = os.path.dirname(__file__)
-api_dir = os.path.join(base_dir, 'backend', 'api')
-sys.path.insert(0, api_dir)
+api_main_path = os.path.join(os.path.dirname(__file__), 'backend', 'api', 'main.py')
+if not os.path.exists(api_main_path):
+    raise RuntimeError(f"Could not find backend/api/main.py at {api_main_path}")
 
-# Import the FastAPI app
-def get_app():
-    from main import app
-    return app
+spec = importlib.util.spec_from_file_location("api.main", api_main_path)
+if spec is None or spec.loader is None:
+    raise RuntimeError("Could not load spec for backend/api/main.py")
 
-app = get_app()
-
-del get_app
+api_main = importlib.util.module_from_spec(spec)
+sys.modules["api.main"] = api_main
+spec.loader.exec_module(api_main)
+app = api_main.app
 
 if __name__ == "__main__":
     import uvicorn
