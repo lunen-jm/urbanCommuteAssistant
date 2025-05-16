@@ -1,11 +1,11 @@
 from sqlalchemy import create_engine
-from app.core.config import Config
+from app.core.config import settings
 from app.db.base import Base
 import app.db.models  # Import to register all models
 
 def reset_database():
     """Drop all tables and recreate them."""
-    engine = create_engine(Config.SQLALCHEMY_DATABASE_URI)
+    engine = create_engine(settings.SQLALCHEMY_DATABASE_URI)
     
     # Drop all tables
     Base.metadata.drop_all(bind=engine)

@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from typing import Optional, Dict, Any
 from app.api.integrations.weather_adapter import OpenWeatherMapAdapter, WeatherQueryParams
 from app.api.integrations.traffic_adapter import TomTomTrafficAdapter, TrafficQueryParams
@@ -37,7 +37,9 @@ async def get_traffic(
 
 @router.get("/transit")
 async def get_transit(
-    location: str = Query(..., description="Location name"),
+    location: Optional[str] = Query(None, description="Location name"),
+    lat: Optional[float] = Query(None, description="Latitude"),
+    lon: Optional[float] = Query(None, description="Longitude"),
     route_id: Optional[str] = Query(None, description="Filter by route ID"),
     stop_id: Optional[str] = Query(None, description="Filter by stop ID"),
     include_realtime: bool = Query(True, description="Include realtime data")
@@ -45,6 +47,13 @@ async def get_transit(
     """
     Get transit data for a specific location
     """
+    # If lat and lon are provided but location is not, convert coordinates to location name
+    if lat is not None and lon is not None and location is None:
+        location = f"{lat},{lon}"  # Use a format that your backend can understand
+    
+    if not location:
+        raise HTTPException(status_code=422, detail="Either 'location' or both 'lat' and 'lon' parameters are required")
+    
     adapter = KingCountyMetroAdapter()
     params = TransitQueryParams(
         location=location, 
@@ -81,17 +90,22 @@ async def health_check():
     traffic_adapter = TomTomTrafficAdapter()
     transit_adapter = KingCountyMetroAdapter()
     
-    return {
+    # Debug values
+    weather_key = Config.WEATHER_API_KEY and len(Config.WEATHER_API_KEY) > 10
+    traffic_key = Config.TRAFFIC_API_KEY and len(Config.TRAFFIC_API_KEY) > 10
+    transit_key = Config.KC_METRO_GTFS_URL and Config.KC_METRO_GTFS_URL.endswith(".zip")
+    
+    return {        
         "weather_api": {
-            "key_configured": bool(Config.WEATHER_API_KEY and Config.WEATHER_API_KEY != "your_weather_api_key"),
+            "key_configured": weather_key,
             "health": await weather_adapter.health_check()
         },
         "traffic_api": {
-            "key_configured": bool(Config.TRAFFIC_API_KEY and Config.TRAFFIC_API_KEY != "your_traffic_api_key"),
+            "key_configured": traffic_key,
             "health": await traffic_adapter.health_check()
         },
         "transit_api": {
-            "key_configured": bool(Config.KC_METRO_GTFS_URL and Config.KC_METRO_GTFS_URL != "https://kingcounty.gov/en/dept/metro/rider-tools/mobile-and-web-apps/gtfs"),
+            "key_configured": transit_key,
             "health": await transit_adapter.health_check()
         }
     }

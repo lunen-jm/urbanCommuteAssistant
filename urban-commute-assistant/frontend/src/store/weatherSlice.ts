@@ -1,13 +1,16 @@
 import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
+import apiService from '../services/api-real';
 
 export interface WeatherData {
   temperature: number;
-  condition: string;
+  description: string;
   humidity: number;
-  windSpeed: number;
-  feelsLike: number;
-  precipitation: number;
-  forecast: {
+  wind_speed: number;
+  feels_like: number;
+  source: string;
+  // Fields for future use
+  precipitation?: number;
+  forecast?: {
     date: string;
     high: number;
     low: number;
@@ -16,14 +19,21 @@ export interface WeatherData {
 }
 
 interface WeatherState {
-  data: WeatherData | null;
+  data: WeatherData;
   loading: boolean;
   error: string | null;
   lastUpdated: string | null;
 }
 
 const initialState: WeatherState = {
-  data: null,
+  data: {
+    temperature: 0,
+    description: 'Weather data unavailable',
+    humidity: 0,
+    wind_speed: 0,
+    feels_like: 0,
+    source: 'pending'
+  },
   loading: false,
   error: null,
   lastUpdated: null
@@ -34,25 +44,9 @@ export const fetchWeatherData = createAsyncThunk(
   'weather/fetchWeatherData',
   async (location: { lat: number; lng: number }, { rejectWithValue }) => {
     try {
-      // This would be replaced with an actual API call
-      console.log('Fetching weather data for', location);
-      
-      // Mock data for now
-      const mockWeatherData: WeatherData = {
-        temperature: 68,
-        condition: 'Partly Cloudy',
-        humidity: 65,
-        windSpeed: 8,
-        feelsLike: 66,
-        precipitation: 10,
-        forecast: [
-          { date: '2023-05-03', high: 72, low: 58, condition: 'Sunny' },
-          { date: '2023-05-04', high: 68, low: 56, condition: 'Partly Cloudy' },
-          { date: '2023-05-05', high: 65, low: 54, condition: 'Rain' },
-        ]
-      };
-      
-      return mockWeatherData;
+      // Call to real API service
+      const response = await apiService.getWeatherData(location.lat, location.lng);
+      return response;
     } catch (error) {
       return rejectWithValue('Failed to fetch weather data');
     }
@@ -63,10 +57,10 @@ const weatherSlice = createSlice({
   name: 'weather',
   initialState,
   reducers: {
-    clearWeatherData(state) {
-      state.data = null;
+    resetWeatherStatus: (state) => {
+      state.loading = false;
       state.error = null;
-    }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -81,11 +75,11 @@ const weatherSlice = createSlice({
       })
       .addCase(fetchWeatherData.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload as string || 'Unknown error occurred';
+        state.error = action.payload as string || 'Failed to fetch weather data';
+        // Keep the current data with placeholder values
       });
-  }
+  },
 });
 
-export const { clearWeatherData } = weatherSlice.actions;
-
+export const { resetWeatherStatus } = weatherSlice.actions;
 export default weatherSlice.reducer;

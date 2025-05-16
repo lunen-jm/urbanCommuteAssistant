@@ -19,6 +19,19 @@ The application uses the following external APIs that require authentication:
 3. Create a new API key (or use the default one provided)
 4. Copy this key and add it to your `.env` file as `WEATHER_API_KEY`
 
+## API Integration Strategy
+
+The Urban Commute Assistant implements a robust API integration strategy with error handling:
+
+### Error Handling Approach
+
+Instead of falling back to sample data when APIs fail, we use these strategies:
+
+- **Placeholders**: Display "Weather data unavailable" or similar messages
+- **Graceful Degradation**: Show available components even if some data is missing
+- **Error Feedback**: Clearly indicate to users when data couldn't be retrieved
+- **Retry Logic**: Automatic retries for transient failures
+
 Note: The free tier allows up to 1,000 calls per day, which is sufficient for development and light usage.
 
 ### TomTom API

@@ -21,24 +21,14 @@ interface TestResult {
 export async function testApiConnection(endpoint: string): Promise<TestResult> {
   const start = Date.now();
   try {
-    const response = await fetch(`http://localhost:8000${endpoint}`);
+    // Use apiClient instead of direct fetch for consistent URL handling
+    const response = await apiClient.get(endpoint);
     const responseTime = Date.now() - start;
     
-    if (!response.ok) {
-      const errorText = await response.text();
-      return {
-        endpoint,
-        success: false,
-        error: `HTTP ${response.status}: ${errorText}`,
-        responseTime
-      };
-    }
-    
-    const data = await response.json();
     return {
       endpoint,
       success: true,
-      data,
+      data: response.data,
       responseTime
     };
   } catch (error) {

@@ -1,0 +1,23 @@
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+.map-section {
+  width: 100%;
+}
+
+.dashboard-section {
+  width: 100%;
+}
+
+/* Responsive layout */
+@media (min-width: 992px) {
+  .home-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}

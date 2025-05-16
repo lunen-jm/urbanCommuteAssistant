@@ -11,7 +11,7 @@ import zipfile
 from datetime import datetime
 import redis
 
-from app.core.config import Config
+from app.core.config import settings
 from app.schemas.transit import (
     TransitRoute, 
     TransitStop, 
@@ -25,9 +25,9 @@ router = APIRouter()
 
 class KingCountyMetroService:
     def __init__(self):
-        self.gtfs_url = Config.KC_METRO_GTFS_URL
-        self.gtfs_rt_url = Config.KC_METRO_GTFS_RT_URL
-        self.redis = redis.from_url(Config.REDIS_URL)
+        self.gtfs_url = settings.KC_METRO_GTFS_URL
+        self.gtfs_rt_url = settings.KC_METRO_GTFS_RT_URL
+        self.redis = redis.from_url(settings.REDIS_URL)
         
         # Feed URLs
         self.trip_updates_url = f"{self.gtfs_rt_url}/tripupdates.pb"

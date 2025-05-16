@@ -8,7 +8,7 @@ from app.api.integrations.weather import router as weather_router
 from app.api.integrations.transit import router as transit_router
 from app.api.auth import router as auth_router
 from app.api.routes.integrated_data import router as integrated_data_router
-from app.core.config import Config
+from app.core.config import settings
 from app.services.data_aggregator import EnhancedDataAggregator
 from app.services.normalizer import DataNormalizer
 from app.services.rate_limiter import ApiRateLimiter
@@ -29,7 +29,7 @@ router.include_router(integrated_data_router, prefix="/data", tags=["integrated-
 
 # Helper function to get Redis connection
 def get_redis():
-    return redis.from_url(Config.REDIS_URL)
+    return redis.from_url(settings.REDIS_URL)
 
 @router.get("/commute-suggestions")
 async def get_commute_suggestions(location: str, destination: str):

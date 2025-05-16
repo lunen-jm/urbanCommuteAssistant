@@ -3,7 +3,7 @@ import requests
 import aiohttp
 from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any, Union
-from app.core.config import Config
+from app.core.config import settings
 import redis
 import json
 import time
@@ -48,9 +48,9 @@ class WeatherForecastItem(BaseModel):
     
 class WeatherAdapter(DataSourceAdapter[WeatherQueryParams, WeatherResponse, WeatherResponse]):
     def __init__(self):
-        self.api_key = Config.WEATHER_API_KEY
+        self.api_key = settings.WEATHER_API_KEY
         self.base_url = "https://api.openweathermap.org/data/2.5"
-        self.redis = redis.from_url(Config.REDIS_URL)
+        self.redis = redis.from_url(settings.REDIS_URL)
         self.daily_limit = 900  # Conservative limit (below 1000)
         
     def get_weather_data(self, lat, lon):

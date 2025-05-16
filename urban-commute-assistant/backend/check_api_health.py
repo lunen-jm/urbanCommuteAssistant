@@ -19,10 +19,16 @@ SERVER_URL = os.getenv("API_URL", "http://localhost:8000")
 async def check_api_health():
     """Check the health of all API integrations"""
     print(f"Checking API health at {SERVER_URL}...")
-    
     try:
         # Check backend service first
-        response = requests.get(f"{SERVER_URL}/api/data/health")
+        url = f"{SERVER_URL}/api/data/health"
+        print(f"Requesting: {url}")
+        response = requests.get(url)
+        if response.status_code != 200:
+            print(f"Error: Status code {response.status_code}")
+            print(f"Response: {response.text}")
+            return False
+        
         response.raise_for_status()
         health_data = response.json()
         

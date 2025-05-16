@@ -1,16 +1,20 @@
-FROM node:16-alpine
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Install dependencies
-COPY package.json package-lock.json* ./
+# Copy package files and install dependencies
+COPY package*.json ./
 RUN npm install
 
-# Copy source code
+# Copy the rest of the application
 COPY . .
 
-# Expose port
+# Set up the environment for Vite
+ENV NODE_ENV=development
+ENV VITE_API_URL=http://backend:8000/api
+
+# Expose the port
 EXPOSE 3000
 
-# Start the application in development mode with proper error reporting
+# Start the app
 CMD ["npm", "start"]

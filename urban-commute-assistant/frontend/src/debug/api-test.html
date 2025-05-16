@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Urban Commute Assistant - API Testing</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            line-height: 1.5;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        
+        h1 {
+            margin-bottom: 30px;
+            color: #1976d2;
+        }
+        
+        h2 {
+            margin-top: 30px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            color: #0d47a1;
+        }
+        
+        button {
+            background-color: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            margin: 10px 5px 10px 0;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        button:hover {
+            background-color: #0d47a1;
+        }
+        
+        pre {
+            background-color: #f6f8fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            overflow-x: auto;
+            font-size: 14px;
+        }
+        
+        .api-container {
+            margin-bottom: 30px;
+        }
+        
+        .api-error {
+            color: #d32f2f;
+            background-color: #ffebee;
+            border: 1px solid #ffcdd2;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        
+        .api-success {
+            color: #388e3c;
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Urban Commute Assistant - API Testing</h1>
+    
+    <p>
+        This page helps test connectivity to the backend API services. Use the buttons below to 
+        test different API endpoints and see the results.
+    </p>
+    
+    <div class="api-container">
+        <h2>API Health Check</h2>
+        <p>Tests if API keys are configured correctly and services are reachable.</p>
+        <button onclick="testHealthAPI()">Test API Health</button>
+        <div id="health-result"></div>
+    </div>
+    
+    <div class="api-container">
+        <h2>Weather API</h2>
+        <p>Tests the connection to the OpenWeatherMap API using Seattle coordinates.</p>
+        <button onclick="testWeatherAPI()">Test Weather API</button>
+        <div id="weather-result"></div>
+    </div>
+    
+    <div class="api-container">
+        <h2>Traffic API</h2>
+        <p>Tests the connection to the TomTom Traffic API using Seattle coordinates.</p>
+        <button onclick="testTrafficAPI()">Test Traffic API</button>
+        <div id="traffic-result"></div>
+    </div>
+    
+    <div class="api-container">
+        <h2>Configuration Notes</h2>
+        <p>
+            Ensure that your backend server (Flask or FastAPI) is running on <code>http://localhost:8000</code>.
+            If your server is running on a different port, update the <code>API_BASE_URL</code> in the 
+            <code>api-test.js</code> file.
+        </p>
+        <p>
+            If you're experiencing CORS issues, make sure your backend has proper CORS configuration.
+        </p>
+    </div>
+    
+    <script>
+        // Override the API_BASE_URL to match your backend server
+        const API_BASE_URL = 'http://localhost:8000/api';
+        
+        // Weather API test function
+        async function testWeatherAPI() {
+            console.log('Testing Weather API...');
+            const resultElement = document.getElementById('weather-result');
+            resultElement.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/weather?lat=47.6062&lon=-122.3321`);
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Weather API Response:', data);
+                
+                resultElement.innerHTML = `
+                    <div class="api-success">
+                        <p>Weather API Test Successful!</p>
+                    </div>
+                    <h3>Weather Data:</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                return data;
+            } catch (error) {
+                console.error('Weather API Test Failed:', error);
+                
+                resultElement.innerHTML = `
+                    <div class="api-error">
+                        <p>Weather API Test Failed</p>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                    <h3>Default Weather Data:</h3>
+                    <pre>${JSON.stringify({
+                        temperature: 0,
+                        description: 'Weather data unavailable',
+                        humidity: 0,
+                        wind_speed: 0,
+                        feels_like: 0,
+                        source: 'error'
+                    }, null, 2)}</pre>
+                `;
+                
+                return {
+                    temperature: 0,
+                    description: 'Weather data unavailable',
+                    humidity: 0,
+                    wind_speed: 0,
+                    feels_like: 0,
+                    source: 'error'
+                };
+            }
+        }
+        
+        // Traffic API test function
+        async function testTrafficAPI() {
+            console.log('Testing Traffic API...');
+            const resultElement = document.getElementById('traffic-result');
+            resultElement.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/traffic?lat=47.6062&lon=-122.3321`);
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Traffic API Response:', data);
+                
+                resultElement.innerHTML = `
+                    <div class="api-success">
+                        <p>Traffic API Test Successful!</p>
+                    </div>
+                    <h3>Traffic Data:</h3>
+                    <pre>${JSON.stringify(data, null, 2)}</pre>
+                `;
+                
+                return data;
+            } catch (error) {
+                console.error('Traffic API Test Failed:', error);
+                
+                resultElement.innerHTML = `
+                    <div class="api-error">
+                        <p>Traffic API Test Failed</p>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                    <h3>Default Traffic Data:</h3>
+                    <pre>${JSON.stringify({
+                        current_speed: 0,
+                        free_flow_speed: 0,
+                        current_travel_time: 0,
+                        free_flow_travel_time: 0,
+                        confidence: 0,
+                        road_closure: false,
+                        congestion_level: 'Unknown',
+                        source: 'error'
+                    }, null, 2)}</pre>
+                `;
+                
+                return {
+                    current_speed: 0,
+                    free_flow_speed: 0,
+                    current_travel_time: 0,
+                    free_flow_travel_time: 0,
+                    confidence: 0,
+                    road_closure: false,
+                    congestion_level: 'Unknown',
+                    source: 'error'
+                };
+            }
+        }
+        
+        // Health check API test function
+        async function testHealthAPI() {
+            console.log('Testing API Health Check...');
+            const resultElement = document.getElementById('health-result');
+            resultElement.innerHTML = '<p>Loading...</p>';
+            
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                console.log('Health API Response:', data);
+                
+                const allHealthy = 
+                    data.weather_api?.health && 
+                    data.traffic_api?.health && 
+                    data.transit_api?.health;
+                
+                if (allHealthy) {
+                    resultElement.innerHTML = `
+                        <div class="api-success">
+                            <p>All API Services are Healthy!</p>
+                        </div>
+                        <h3>Health Check Details:</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultElement.innerHTML = `
+                        <div class="api-error">
+                            <p>Some API Services are Unhealthy</p>
+                        </div>
+                        <h3>Health Check Details:</h3>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('Health API Test Failed:', error);
+                
+                resultElement.innerHTML = `
+                    <div class="api-error">
+                        <p>API Health Check Failed</p>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                    <h3>Default Health Status:</h3>
+                    <pre>${JSON.stringify({
+                        weather_api: { key_configured: false, health: false },
+                        traffic_api: { key_configured: false, health: false },
+                        transit_api: { key_configured: false, health: false }
+                    }, null, 2)}</pre>
+                `;
+                
+                return {
+                    weather_api: { key_configured: false, health: false },
+                    traffic_api: { key_configured: false, health: false },
+                    transit_api: { key_configured: false, health: false }
+                };
+            }
+        }
+    </script>
+</body>
+</html>

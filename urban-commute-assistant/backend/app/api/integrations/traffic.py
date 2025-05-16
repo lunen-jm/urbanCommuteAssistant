@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Query
 import requests
 from typing import Optional
-from app.core.config import Config
+from app.core.config import settings
 import redis
 import json
 from datetime import datetime
@@ -10,10 +10,10 @@ router = APIRouter()
 
 class TomTomTrafficService:
     def __init__(self):
-        self.api_key = Config.TRAFFIC_API_KEY
+        self.api_key = settings.TRAFFIC_API_KEY
         self.base_url = "https://api.tomtom.com/traffic/services/4/flowSegmentData/absolute/10/json"
         self.incidents_url = "https://api.tomtom.com/traffic/services/5/incidentDetails"
-        self.redis = redis.from_url(Config.REDIS_URL)
+        self.redis = redis.from_url(settings.REDIS_URL)
         
     def get_traffic_flow(self, lat, lon, radius=1000):
         """Get traffic flow data for a specific location"""

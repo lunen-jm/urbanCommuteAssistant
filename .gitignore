@@ -3,3 +3,5 @@
 .env.*
 !.env.example
 urban-commute-assistant/backend/.env
+backend/app/core/config.py
+node_modules

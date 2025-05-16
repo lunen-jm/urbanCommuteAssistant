@@ -93,15 +93,22 @@ class OpenWeatherMapAdapter(DataSourceAdapter[WeatherQueryParams, WeatherRespons
         if self.calls_today >= self.daily_limit:
             logger.warning("OpenWeatherMap daily rate limit reached")
             raise Exception("Daily rate limit reached")
-        
-        # Make API call
+          # Make API call
         try:
             api_params = {
                 "lat": params.lat,
                 "lon": params.lon,
                 "units": params.units,
-                "appid": self.api_key
+                "appid": self.api_key or "MISSING_API_KEY"  # Provide a default to avoid None errors
             }
+            
+            # Add more detailed logging
+            logger.info(f"Calling OpenWeatherMap API for coordinates: {params.lat}, {params.lon}")
+            
+            # Check if API key is valid before making the request
+            if not self.api_key or len(self.api_key) < 10:
+                logger.error("Invalid or missing OpenWeatherMap API key")
+                return self.handle_errors(Exception("Invalid API key configuration"))
             
             response = requests.get(self.base_url, params=api_params, timeout=10)
             response.raise_for_status()
@@ -134,7 +141,6 @@ class OpenWeatherMapAdapter(DataSourceAdapter[WeatherQueryParams, WeatherRespons
         except Exception as e:
             logger.error(f"Error fetching weather data: {str(e)}")
             return await self.handle_errors(e)
-    
     async def handle_errors(self, error: Any) -> Optional[WeatherResponse]:
         """Handle API errors and provide fallback data if possible"""
         logger.error(f"Weather API error: {str(error)}")
@@ -156,9 +162,12 @@ class OpenWeatherMapAdapter(DataSourceAdapter[WeatherQueryParams, WeatherRespons
         
         # If no fallback is available, provide a minimal default response
         return WeatherResponse(
-            temperature=20.0,
-            description="Information temporarily unavailable",
+            temperature=22.0,
+            description="Weather data unavailable",
             humidity=50,
-            wind_speed=0.0,
+            wind_speed=5.0,
+            feels_like=22.0,
+            pressure=1013,
+            clouds=50,
             source="default_fallback"
         )

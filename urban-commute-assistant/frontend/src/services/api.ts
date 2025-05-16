@@ -1,14 +1,16 @@
 import axios from 'axios';
-import { TransitData } from '../types';
+// Safely access environment variables with fallbacks
+const API_BASE_URL = typeof import.meta.env !== 'undefined' && import.meta.env.VITE_API_URL 
+  ? import.meta.env.VITE_API_URL 
+  : 'http://localhost:8000/api';
+
+console.log('API Base URL:', API_BASE_URL);
 
 // Define LocationCoordinates interface
 interface LocationCoordinates {
   latitude: number;
   longitude: number;
 }
-
-// Use environment variable with fallback
-const API_BASE_URL = 'http://localhost:8000';
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -74,7 +76,7 @@ interface ComprehensiveDataParams {
 
 export const fetchTrafficData = async (lat: number, lon: number, radius: number = 5000) => {
   try {
-    const response = await apiClient.get('/api/data/traffic', {
+    const response = await apiClient.get('/data/traffic', {
       params: { lat, lon, radius }
     });
     return response.data;
@@ -93,21 +95,13 @@ export const fetchTrafficData = async (lat: number, lon: number, radius: number 
 
 export const fetchWeatherData = async (lat: number, lon: number, units: string = 'metric') => {
   try {
-    const response = await apiClient.get('/api/data/weather', {
+    const response = await apiClient.get('/data/weather', {
       params: { lat, lon, units }
     });
     return response.data;
   } catch (error) {
     console.error('Error fetching weather data:', error);
-    // Return empty data structure that won't break the UI
-    return {
-      temperature: null,
-      description: 'Weather data unavailable',
-      humidity: null,
-      windSpeed: null,
-      error: true,
-      errorMessage: error instanceof Error ? error.message : 'Unknown error'
-    };
+    throw error;
   }
 };
 
@@ -118,13 +112,13 @@ export const fetchTransitData = async (location: LocationCoordinates | string, i
     if (typeof location === 'string') {
       params.location = location;
     } else {
-      params.lat = location.latitude;
-      params.lon = location.longitude;
+      // Convert coordinates to location string
+      params.location = `${location.latitude},${location.longitude}`;
     }
     
     params.include_realtime = includeRealtime;
     
-    const response = await apiClient.get('/api/data/transit', { params });
+    const response = await apiClient.get('/data/transit', { params });
     return response.data;
   } catch (error) {
     console.error('Error fetching transit data:', error);
@@ -148,7 +142,7 @@ export const fetchComprehensiveData = async (location: string, options = {
   includeTransit: true
 }) => {
   try {
-    const response = await apiClient.get('/api/data/comprehensive', { 
+    const response = await apiClient.get('/data/comprehensive', { 
       params: {
         location,
         include_traffic: options.includeTraffic,
@@ -179,7 +173,7 @@ export const fetchComprehensiveData = async (location: string, options = {
 
 export const fetchWeatherForecast = async (lat: number, lon: number) => {
   try {
-    const response = await apiClient.get('/api/data/weather/forecast', {
+    const response = await apiClient.get('/data/weather/forecast', {
       params: { lat, lon }
     });
     return response.data;
@@ -191,7 +185,7 @@ export const fetchWeatherForecast = async (lat: number, lon: number) => {
 
 export const fetchTrafficIncidents = async (lat: number, lon: number, radius: number = 5000) => {
   try {
-    const response = await apiClient.get('/api/data/traffic/incidents', {
+    const response = await apiClient.get('/data/traffic/incidents', {
       params: { lat, lon, radius }
     });
     return response.data;
@@ -203,7 +197,7 @@ export const fetchTrafficIncidents = async (lat: number, lon: number, radius: nu
 
 export const fetchRealTimeArrivals = async (stopId: string) => {
   try {
-    const response = await apiClient.get('/api/data/transit/trips/updates', {
+    const response = await apiClient.get('/data/transit/trips/updates', {
       params: { stop_id: stopId }
     });
     return response.data;
@@ -215,7 +209,7 @@ export const fetchRealTimeArrivals = async (stopId: string) => {
 
 export const fetchNearbyTransitStops = async (lat: number, lon: number, radius: number = 1000) => {
   try {
-    const response = await apiClient.get('/api/data/transit/stops/nearby', {
+    const response = await apiClient.get('/data/transit/stops/nearby', {
       params: { lat, lon, radius }
     });
     return response.data;
@@ -228,7 +222,7 @@ export const fetchNearbyTransitStops = async (lat: number, lon: number, radius: 
 // API usage monitoring endpoints
 export const fetchApiUsageStats = async () => {
   try {
-    const response = await apiClient.get('/api/monitoring/api-usage');
+    const response = await apiClient.get('/monitoring/api-usage');
     return response.data;
   } catch (error) {
     console.error('Error fetching API usage stats:', error);
@@ -238,7 +232,7 @@ export const fetchApiUsageStats = async () => {
 
 export const invalidateCache = async (dataType: string, subtype?: string) => {
   try {
-    const response = await apiClient.post(`/api/cache/invalidate/${dataType}`, {
+    const response = await apiClient.post(`/cache/invalidate/${dataType}`, {
       subtype
     });
     return response.data;

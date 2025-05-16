@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { fetchTransitData } from '../services/api';
+import { fetchTransitData } from '../services/api-hybrid';
 import { TransitData, TransitDataState } from '../types';
 
 interface LocationParams {
