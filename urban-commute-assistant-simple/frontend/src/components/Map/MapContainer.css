@@ -1,15 +1,24 @@
 .map-container {
   width: 100%;
-  height: 100%;
+  flex-grow: 1; /* Allows this container to grow and fill the parent .map-section */
   display: flex;
   flex-direction: column;
+  position: relative; /* Useful for positioning map controls or overlays */
+  box-sizing: border-box; /* Ensures padding/border are included in width/height */
+  padding: 0; /* Ensure no internal padding */
+  margin: 0; /* Ensure no internal margin */
+  overflow: hidden; /* Prevent scrollbars and help map sizing */
+  border-radius: 8px;
 }
 
 .map {
   width: 100%;
-  height: 400px;
+  flex-grow: 1; /* Allows the map div to grow and fill .map-container */
+  box-sizing: border-box; /* Ensures padding/border are included in width/height */
+  padding: 0; /* Ensure no internal padding */
+  margin: 0; /* Ensure no internal margin */
+  overflow: hidden; /* Prevent scrollbars and help map sizing */
   border-radius: 8px;
-  overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
