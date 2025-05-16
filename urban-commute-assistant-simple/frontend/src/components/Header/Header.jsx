@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { logout } from '../../store/userSlice';
+import LocationSelector from './LocationSelector';
 import './Header.css';
 
 const Header = () => {
@@ -15,23 +16,26 @@ const Header = () => {
 
   return (
     <header className="app-header">
-      <div className="header-container">
-        <div className="logo">
+      <div className="header-container">        <div className="logo">
           <Link to="/">Urban Commute Assistant</Link>
         </div>
         
-        <nav className="main-nav">
-          <ul>
-            <li>
-              <Link to="/">Dashboard</Link>
-            </li>
-            {isAuthenticated && (
+        <div className="nav-container">
+          <LocationSelector />
+          
+          <nav className="main-nav">
+            <ul>
               <li>
-                <Link to="/settings">Settings</Link>
+                <Link to="/">Dashboard</Link>
               </li>
-            )}
-          </ul>
-        </nav>
+              {isAuthenticated && (
+                <li>
+                  <Link to="/settings">Settings</Link>
+                </li>
+              )}
+            </ul>
+          </nav>
+        </div>
         
         <div className="auth-nav">
           {isAuthenticated ? (

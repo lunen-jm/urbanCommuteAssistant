@@ -20,6 +20,11 @@
   text-decoration: none;
 }
 
+.nav-container {
+  display: flex;
+  align-items: center;
+}
+
 .main-nav ul {
   display: flex;
   list-style: none;
@@ -70,8 +75,15 @@
     align-items: flex-start;
   }
   
+  .nav-container {
+    flex-direction: column;
+    width: 100%;
+    margin-top: 1rem;
+  }
+  
   .main-nav {
     margin: 1rem 0;
+    width: 100%;
   }
   
   .main-nav ul {
