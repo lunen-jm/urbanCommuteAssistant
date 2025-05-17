@@ -21,6 +21,18 @@ const TransitSummary = () => {
       return 'Invalid time';
     }
   };
+  
+  // Function to get stop name by stop_id
+  const getStopNameById = (stopId) => {
+    const stop = stops.find(stop => stop.id === stopId);
+    return stop ? stop.name : 'Unknown Stop';
+  };
+  
+  // Helper to get route details
+  const getRouteDetails = (routeId) => {
+    const route = routes.find(r => r.id === routeId);
+    return route ? `${route.shortName} - ${route.longName}` : routeId;
+  };
 
   return (
     <div className="transit-summary">
@@ -56,7 +68,12 @@ const TransitSummary = () => {
           <ul className="arrival-list">
             {arrivals.map((arrival, index) => (
               <li key={index} className={`arrival-item status-${arrival.status.toLowerCase()}`}>
-                <div className="arrival-route">{arrival.route}</div>
+                <div className="arrival-route">
+                  {getRouteDetails(arrival.route)}
+                </div>
+                <div className="arrival-stop">
+                  {getStopNameById(arrival.stop_id)}
+                </div>
                 <div className="arrival-time">
                   {formatTime(arrival.arrival_time)}
                 </div>

@@ -63,19 +63,22 @@ def get_transit_data(lat, lon, radius=500):
                     "route": "40", 
                     "stop_id": "1_10914",
                     "arrival_time": (current_time + timedelta(minutes=5)).isoformat(), 
-                    "status": "ON_TIME"
+                    "status": "ON_TIME",
+                    "destination": "Northgate"
                 },
                 {
                     "route": "62", 
                     "stop_id": "1_10914",
                     "arrival_time": (current_time + timedelta(minutes=10)).isoformat(), 
-                    "status": "DELAYED"
+                    "status": "DELAYED",
+                    "destination": "Fremont"
                 },
                 {
                     "route": "Link", 
                     "stop_id": "1_10915",
                     "arrival_time": (current_time + timedelta(minutes=8)).isoformat(), 
-                    "status": "ON_TIME"
+                    "status": "ON_TIME",
+                    "destination": "Northgate"
                 }
             ],
             "timestamp": current_time.isoformat(),

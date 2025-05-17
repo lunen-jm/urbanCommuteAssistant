@@ -43,3 +43,30 @@
 * Created initial dashboard views
 
 Note: Data initial dashboard is sample data as APIs are not fully integrated
+
+5.16.25 - Following steps/features completed:
+* Created a simplified version of the app (urban-commute-assistant-simple) for easier development and deployment
+  * Docker was causing too many issues
+  * API Keys were just not working and I spent too much time debugging (around 15 hours that I chose not to charge my client for since it was my fault)
+* Implemented a lightweight FastAPI backend with Flask-compatible API endpoints
+* Built a responsive frontend using React, Vite, and modern CSS techniques
+* Integrated real-time transit data fetching based on user's geolocation
+  * Client decided that he wanted it to always bring him to one of the locations, based on his current location instead of home
+* Added interactive map visualization with Leaflet.js showing transit stops and traffic incidents
+  * Incident markers give helpful visualizations, but client wants them smaller moving forward
+* Created a weather information component with current conditions and forecast
+* Developed a dashboard with responsive layout for both desktop and mobile views
+  * Focused on mobile as client will likely use his phone for most, he provided many changes for the layout
+  * Organized cards in a variable order based on recommend commute choice
+* Added location selection with real addresses (Home, Work, Gym, School)
+* Implemented ETA calculation for selected routes
+* Created automated setup scripts for Windows environments (PowerShell)
+* Added commute recommendations based on current weather and traffic conditions
+* Improved mobile responsiveness with adaptive stacking layouts
+* Implemented Redux state management for consistent data flow
+* Created deployment configurations for Netlify (frontend) and Render (backend)
+* Added service worker for offline capability and improved loading performance
+* Fixed cross-browser compatibility issues in Safari and Firefox
+* Optimized map performance for mobile devices
+* Added thorough documentation for setup, deployment, and troubleshooting
+* Implemented fallbacks when APIs are unavailable

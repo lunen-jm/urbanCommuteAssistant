@@ -131,8 +131,7 @@ const MapContainerComponent = ({ setEta }) => {
               </Popup>
             </Marker>
           )
-        ))}
-        {/* Transit stop markers */}
+        ))}        {/* Transit stop markers */}
         {transit?.data?.stops?.map((stop) => (
           <Marker 
             key={stop.id}
@@ -143,6 +142,21 @@ const MapContainerComponent = ({ setEta }) => {
               <div>
                 <h4>{stop.name}</h4>
                 <p>Routes: {stop.routes.join(', ')}</p>
+                {transit?.data?.arrivals?.filter(arrival => arrival.stop_id === stop.id).length > 0 && (
+                  <div className="popup-arrivals">
+                    <p><strong>Next arrivals:</strong></p>
+                    <ul style={{padding: '0 0 0 15px', margin: '5px 0'}}>
+                      {transit?.data?.arrivals
+                        ?.filter(arrival => arrival.stop_id === stop.id)
+                        .map((arrival, idx) => (
+                          <li key={idx}>
+                            {arrival.route} - {arrival.arrival_time ? new Date(arrival.arrival_time).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 'N/A'}
+                            {arrival.status === 'DELAYED' ? ' (Delayed)' : ''}
+                          </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
             </Popup>
           </Marker>
