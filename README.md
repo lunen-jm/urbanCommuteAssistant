@@ -70,3 +70,22 @@ Note: Data initial dashboard is sample data as APIs are not fully integrated
 * Optimized map performance for mobile devices
 * Added thorough documentation for setup, deployment, and troubleshooting
 * Implemented fallbacks when APIs are unavailable
+
+## Next Steps / Known Issues
+
+* **User Authentication System**
+  * Implement secure login/registration with JWT or OAuth
+  * Add user profiles with saved preferences and commute history instead of one default user
+* **Transit Data API Integration**
+  * Fix the current implementation, markers are off and stops are not populating accuratly in cards
+  * Implement transit vehicle tracking on the map
+* **Design & UI Refinements**
+  * Reduce map marker size per client feedback
+  * Add route alternatives visualization (only main is populated currently)
+  * Implement dark mode support
+* **Enhanced Personalization**
+  * Add user preference learning based on commute choices
+  * Develop custom notifications for specific routes/stops
+* **Advanced Weather Integration**
+  * Add hourly forecasts for commute planning
+  * Implement severe weather alerts and routing adjustments
