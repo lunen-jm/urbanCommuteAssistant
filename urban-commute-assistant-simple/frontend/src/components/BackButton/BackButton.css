@@ -1,0 +1,127 @@
+/* Back Button Component */
+
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  text-decoration: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+}
+
+/* Default variant */
+.back-button.default {
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.back-button.default:hover {
+  background: rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Dark variant */
+.back-button.dark {
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.back-button.dark:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* iOS variant */
+.back-button.ios {
+  background: rgba(255, 255, 255, 0.95);
+  color: #007AFF;
+  border: 1px solid rgba(0, 122, 255, 0.2);
+  font-size: 0.85rem;
+}
+
+.back-button.ios:hover {
+  background: rgba(255, 255, 255, 1);
+  color: #0056b3;
+}
+
+/* Material variant */
+.back-button.material {
+  background: #1976d2;
+  color: white;
+  border: none;
+  box-shadow: 0 2px 8px rgba(25, 118, 210, 0.3);
+}
+
+.back-button.material:hover {
+  background: #1565c0;
+  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.4);
+}
+
+/* Neon variant for dark theme */
+.back-button.neon {
+  background: rgba(0, 0, 0, 0.8);
+  color: #00ffff;
+  border: 1px solid rgba(0, 255, 255, 0.5);
+  text-shadow: 0 0 10px rgba(0, 255, 255, 0.3);
+}
+
+.back-button.neon:hover {
+  background: rgba(0, 0, 0, 0.9);
+  border-color: #00ffff;
+  box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+}
+
+.back-icon {
+  font-size: 1.1rem;
+  transition: transform 0.2s ease;
+}
+
+.back-button:hover .back-icon {
+  transform: translateX(-2px);
+}
+
+.back-text {
+  font-weight: inherit;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .back-button {
+    top: 16px;
+    left: 16px;
+    padding: 10px 14px;
+    font-size: 0.85rem;
+  }
+  
+  .back-text {
+    display: none;
+  }
+  
+  .back-button {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .back-button {
+    top: 12px;
+    left: 12px;
+    width: 40px;
+    height: 40px;
+  }
+}

@@ -3,47 +3,12 @@ import { RootState, WeatherData, WeatherForecast } from '../../types';
 import { useAppSelector } from '../../store';
 import DataCard from './DataCard';
 
-interface DayForecast {
-  date: string;
-  high: number;
-  low: number;
-  condition: string;
-  precipitation: number;
-}
-
 const WeatherSummary: React.FC = () => {
     const weatherData = useAppSelector((state) => state.weather.data);
     const loading = useAppSelector((state) => state.weather.loading);
-    const error = useAppSelector((state) => state.weather.error);
-
-    if (loading) return <div className="loader-container"><div className="loader"></div> Loading weather data...</div>;
+    const error = useAppSelector((state) => state.weather.error);    if (loading) return <div className="loader-container"><div className="loader"></div> Loading weather data...</div>;
     if (error) return <div className="error-message">Error loading weather data: {error}</div>;
     if (!weatherData) return <div className="no-data-message">No weather data available</div>;
-
-    // Create mock forecast data if it doesn't exist
-    const forecastData: DayForecast[] = [
-        {
-            date: new Date(Date.now() + 86400000).toISOString(),
-            high: (weatherData.temperature || 70) + 2,
-            low: (weatherData.temperature || 70) - 5,
-            condition: weatherData.description,
-            precipitation: 10
-        },
-        {
-            date: new Date(Date.now() + 172800000).toISOString(),
-            high: (weatherData.temperature || 70) + 1,
-            low: (weatherData.temperature || 70) - 6,
-            condition: weatherData.description,
-            precipitation: 20
-        },
-        {
-            date: new Date(Date.now() + 259200000).toISOString(),
-            high: (weatherData.temperature || 70) - 1,
-            low: (weatherData.temperature || 70) - 8,
-            condition: weatherData.description,
-            precipitation: 30
-        }
-    ];
 
     return (
         <div className="weather-summary">
@@ -64,25 +29,7 @@ const WeatherSummary: React.FC = () => {
                 />
                 <DataCard 
                     title="Wind" 
-                    value={weatherData.windSpeed ? `${weatherData.windSpeed} mph` : 'N/A'} 
-                />
-            </div>
-
-            <div className="forecast-section">
-                <h4>3-Day Forecast</h4>
-                <div className="forecast-cards">
-                    {forecastData.map((day: DayForecast, index: number) => (
-                        <div key={index} className="forecast-card">
-                            <div className="forecast-date">{formatDate(day.date)}</div>
-                            <div className="forecast-icon">{getWeatherIcon(day.condition)}</div>
-                            <div className="forecast-temps">
-                                <span className="high">{day.high}°</span>
-                                <span className="low">{day.low}°</span>
-                            </div>
-                            <div className="forecast-condition">{day.condition}</div>
-                        </div>
-                    ))}
-                </div>
+                    value={weatherData.windSpeed ? `${weatherData.windSpeed} mph` : 'N/A'}                />
             </div>
         </div>
     );
@@ -109,12 +56,6 @@ const getWeatherIcon = (condition: string = ''): string => {
     } else {
         return '🌤️';
     }
-};
-
-// Helper function to format date
-const formatDate = (dateString: string): string => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 };
 
 export default WeatherSummary;

@@ -1,0 +1,630 @@
+/* Layout 5 - Bottom Sheet Mobile Layout */
+
+.layout5-container {
+  height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Status Bar */
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  background: rgba(0, 0, 0, 0.1);
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  z-index: 100;
+}
+
+.status-left, .status-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Main Content Area */
+.main-content {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.map-placeholder .map-container {
+  width: 100%;
+  height: 100%;
+}
+
+.map-placeholder .map {
+  width: 100%;
+  height: 100%;
+}
+
+.map-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  color: white;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+}
+
+.map-overlay h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.map-overlay p {
+  font-size: 1rem;
+  opacity: 0.9;
+  margin: 0 0 12px 0;
+}
+
+.eta-display {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-top: 12px;
+}
+
+.eta-time {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #4CAF50;
+  text-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.eta-label {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+/* Floating Indicators */
+.floating-indicators {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 3;
+}
+
+.indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 25px;
+  color: #333;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  min-width: 100px;
+}
+
+.indicator:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+.indicator-icon {
+  font-size: 1.2rem;
+}
+
+.indicator-value {
+  font-weight: 700;
+}
+
+/* Quick Cards */
+.quick-cards {
+  position: absolute;
+  bottom: 120px;
+  left: 0;
+  right: 0;
+  padding: 0 20px;
+  z-index: 4;
+  transition: bottom 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Quick Cards - positioned above bottom sheet */
+.layout5-container:not(.sheet-active) .quick-cards {
+  bottom: 120px; /* When no sheet is active, position higher */
+}
+
+.layout5-container.sheet-partial .quick-cards {
+  bottom: calc(40vh + 20px); /* Above partial sheet */
+}
+
+.layout5-container.sheet-full .quick-cards {
+  bottom: calc(85vh + 20px); /* Above full sheet */
+}
+
+.card-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.quick-card {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.quick-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 1);
+}
+
+.card-icon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 10px;
+}
+
+.card-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.card-title {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.card-value {
+  font-size: 0.9rem;
+  color: #333;
+  font-weight: 700;
+}
+
+.card-arrow {
+  font-size: 1.2rem;
+  color: #999;
+  font-weight: 300;
+}
+
+/* Bottom Sheet */
+.sheet-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.bottom-sheet {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 20px 20px 0 0;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  animation: slideUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  max-height: 85vh;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+.bottom-sheet.partial {
+  height: 40vh;
+}
+
+.bottom-sheet.full {
+  height: 85vh;
+}
+
+.sheet-handle {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+  cursor: pointer;
+}
+
+.handle-bar {
+  width: 40px;
+  height: 4px;
+  background: #ddd;
+  border-radius: 2px;
+  transition: background 0.2s ease;
+}
+
+.sheet-handle:hover .handle-bar {
+  background: #bbb;
+}
+
+.sheet-content {
+  padding: 0 24px 24px;
+  height: calc(100% - 40px);
+  overflow-y: auto;
+}
+
+.sheet-section h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 24px 0;
+  color: #333;
+}
+
+/* Weather Details */
+.weather-details {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.weather-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  background: linear-gradient(135deg, #74b9ff, #0984e3);
+  border-radius: 16px;
+  color: white;
+}
+
+.temp-display {
+  display: flex;
+  flex-direction: column;
+}
+
+.temp-large {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.condition {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+.weather-icon-large {
+  font-size: 4rem;
+}
+
+/* Traffic Details */
+.traffic-details {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.traffic-main {
+  padding: 24px;
+  background: linear-gradient(135deg, #fd79a8, #e84393);
+  border-radius: 16px;
+  color: white;
+}
+
+.travel-time {
+  display: flex;
+  flex-direction: column;
+}
+
+.time-large {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Transit Details */
+.transit-details {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.transit-main {
+  padding: 24px;
+  background: linear-gradient(135deg, #a29bfe, #6c5ce7);
+  border-radius: 16px;
+  color: white;
+}
+
+.arrival-time {
+  display: flex;
+  flex-direction: column;
+}
+
+.route-info {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-top: 4px;
+}
+
+/* Stats */
+.weather-stats, .traffic-stats, .transit-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.stat-row {
+  display: flex;
+  gap: 16px;
+}
+
+.stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.stat-label {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.stat-value {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 700;
+}
+
+/* Route Details */
+.route-details {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.route-endpoints {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: #f8f9fa;
+  border-radius: 16px;
+}
+
+.endpoint-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.endpoint-icon {
+  font-size: 1.5rem;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.endpoint-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.endpoint-label {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.endpoint-name {
+  font-size: 1.1rem;
+  color: #333;
+  font-weight: 600;
+}
+
+.route-swap {
+  display: flex;
+  justify-content: center;
+  padding: 8px 0;
+}
+
+.swap-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #e9ecef;
+  color: #666;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.swap-button:hover {
+  border-color: #667eea;
+  color: #667eea;
+}
+
+.route-options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.route-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: #f8f9fa;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.route-option.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.route-option:hover:not(.active) {
+  border-color: #e9ecef;
+  background: white;
+}
+
+.option-icon {
+  font-size: 1.5rem;
+}
+
+.option-name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.option-time {
+  font-weight: 700;
+  color: inherit;
+}
+
+/* Bottom Navigation */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+  z-index: 999;
+}
+
+.nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px;
+  color: #666;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.nav-item.active {
+  color: #667eea;
+}
+
+.nav-icon {
+  font-size: 1.2rem;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 480px) {
+  .quick-cards {
+    padding: 0 16px;
+  }
+  
+  .card-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .quick-card {
+    gap: 10px;
+    padding: 14px;
+  }
+  
+  .floating-indicators {
+    right: 16px;
+    top: 16px;
+  }
+  
+  .indicator {
+    padding: 10px 14px;
+    font-size: 0.8rem;
+    min-width: 80px;
+  }
+  
+  .sheet-content {
+    padding: 0 20px 20px;
+  }
+  
+  .weather-main, .traffic-main, .transit-main {
+    padding: 20px;
+  }
+  
+  .temp-large, .time-large {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-height: 700px) {
+  .bottom-sheet.partial {
+    height: 50vh;
+  }
+  
+  .bottom-sheet.full {
+    height: 90vh;
+  }
+}

@@ -3,20 +3,43 @@ import axios from 'axios';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
-// Sample user data for testing without backend
-const testUser = {
-  id: '1',
-  name: 'Test User',
-  email: 'testuser@example.com',
-  location: { lat: 47.620682, lng: -122.151613 }, // 1230 140th Pl NE, Bellevue, WA 98007
-  savedLocations: [
-    { id: '1', name: 'Home', lat: 47.620682, lng: -122.151613 }, // 1230 140th Pl NE, Bellevue, WA 98007
-    { id: '2', name: 'Work', lat: 47.6396, lng: -122.1280 }, // Microsoft Redmond Campus
-    { id: '3', name: 'Gym', lat: 47.6234, lng: -122.1371 }, // Crossroads Planet Fitness Bellevue
-    { id: '4', name: 'School', lat: 47.6175, lng: -122.1926 } // GIX Bellevue
+// Initial user state - will be populated when user logs in or provides data
+const initialUserData = {
+  id: null,
+  name: '',
+  email: '',
+  location: null,  savedLocations: [
+    {
+      id: '1',
+      name: 'Home',
+      address: 'House in Bellevue',
+      lat: 47.6101,
+      lng: -122.2015 // Bellevue residential area
+    },
+    {
+      id: '2', 
+      name: 'Work',
+      address: 'Microsoft Redmond Campus',
+      lat: 47.6423,
+      lng: -122.1301 // Microsoft Redmond Campus
+    },
+    {
+      id: '3',
+      name: 'Gym',
+      address: 'Crossroads Planet Fitness, Bellevue', 
+      lat: 47.5950,
+      lng: -122.1790 // Crossroads Planet Fitness, Bellevue
+    },
+    {
+      id: '4',
+      name: 'School',
+      address: 'Global Innovation Exchange (GIX), Bellevue',
+      lat: 47.6160,
+      lng: -122.1896 // Global Innovation Exchange (GIX), Bellevue
+    }
   ],
-  selectedLocation: '1', // ID of the selected location
-  useCurrentLocation: false, // Flag to use browser's geolocation
+  selectedLocation: '2', // Default to Work
+  useCurrentLocation: true, // Default to using current location
   preferences: {
     theme: 'light',
     transitTypes: ['bus', 'rail'],
@@ -63,17 +86,19 @@ export const fetchUserProfile = createAsyncThunk(
   }
 );
 
-const userSlice = createSlice({
-  name: 'user',
+const userSlice = createSlice({  name: 'user',
   initialState: {
     token: null,
     profile: null,
     isAuthenticated: false,
     loading: false,
     error: null,
-    // For demo purposes, we'll use a default user
-    // In a real app, this would come from the API
-    ...testUser,
+    // Initialize with empty user data
+    ...initialUserData,
+    // Location state for the refactored location system
+    currentLocation: null,
+    locationStatus: 'unknown', // 'unknown' | 'loading' | 'success' | 'error'
+    locationError: null,
   },  reducers: {
     logout: (state) => {
       state.token = null;
@@ -86,17 +111,8 @@ const userSlice = createSlice({
     },
     selectSavedLocation: (state, action) => {
       state.selectedLocation = action.payload;
-      // If Home is selected, use geolocation
-      if (action.payload === '1') {
-        state.useCurrentLocation = true;
-      } else {
-        // Find the selected location and update current location
-        const selectedLocation = state.savedLocations.find(loc => loc.id === action.payload);
-        if (selectedLocation) {
-          state.location = { lat: selectedLocation.lat, lng: selectedLocation.lng };
-        }
-        state.useCurrentLocation = false;
-      }
+      // Don't overwrite the user's actual current location when selecting destinations
+      // The selectedLocation is just the destination, not the user's current position
     },
     addSavedLocation: (state, action) => {
       // Generate a new ID - in a real app you'd want to ensure uniqueness
@@ -111,7 +127,27 @@ const userSlice = createSlice({
     },
     toggleUseCurrentLocation: (state, action) => {
       state.useCurrentLocation = action.payload;
-    }
+    },
+    // New location actions for refactored location system
+    setCurrentLocation: (state, action) => {
+      state.currentLocation = action.payload;
+      state.locationStatus = 'success';
+      state.locationError = null;
+    },
+    setLocationLoading: (state) => {
+      state.locationStatus = 'loading';
+      state.locationError = null;
+    },
+    setLocationError: (state, action) => {
+      state.locationStatus = 'error';
+      state.locationError = action.payload;
+    },
+    clearLocationError: (state) => {
+      state.locationError = null;
+      if (state.locationStatus === 'error') {
+        state.locationStatus = 'unknown';
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -143,5 +179,15 @@ const userSlice = createSlice({
   },
 });
 
-export const { logout, updateUserLocation, selectSavedLocation, addSavedLocation, toggleUseCurrentLocation } = userSlice.actions;
+export const { 
+  logout, 
+  updateUserLocation, 
+  selectSavedLocation, 
+  addSavedLocation, 
+  toggleUseCurrentLocation,
+  setCurrentLocation,
+  setLocationLoading,
+  setLocationError,
+  clearLocationError,
+} = userSlice.actions;
 export default userSlice.reducer;

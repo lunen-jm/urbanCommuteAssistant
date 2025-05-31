@@ -207,11 +207,9 @@ export const fetchIntegratedData = async (lat: number, lon: number, location: st
 // Export these functions explicitly for Redux slices
 export const fetchTrafficData = async (location: LocationParams): Promise<TrafficData> => {
   try {
-    // In a real implementation, you would call the API with the location
-    // For now, import from sample data for demo
-    const { sampleTrafficData } = await import('./sample-data/traffic');
-    // Use the adapter to fix type issues
-    return adaptTrafficData(sampleTrafficData);
+    // TODO: Implement actual traffic API integration
+    // This should call a real traffic service with the provided location
+    throw new Error('Traffic API integration not implemented');
   } catch (error) {
     console.error('Error fetching traffic data:', error);
     // Return an empty traffic data structure in case of error
@@ -227,11 +225,9 @@ export const fetchTrafficData = async (location: LocationParams): Promise<Traffi
 
 export const fetchTransitData = async (location: LocationParams): Promise<TransitData> => {
   try {
-    // In a real implementation, you would call the API with the location
-    // For now, import from sample data for demo
-    const { sampleTransitData } = await import('./sample-data/transit');
-    // Use the adapter to fix type issues
-    return adaptTransitData(sampleTransitData);
+    // TODO: Implement actual transit API integration
+    // This should call a real transit service with the provided location
+    throw new Error('Transit API integration not implemented');
   } catch (error) {
     console.error('Error fetching transit data:', error);
     return {
@@ -248,11 +244,9 @@ export const fetchTransitData = async (location: LocationParams): Promise<Transi
 
 export const fetchWeatherData = async (location: LocationParams): Promise<WeatherData> => {
   try {
-    // In a real implementation, you would call the API with the location
-    // For now, import from sample data for demo
-    const { sampleWeatherData } = await import('./sample-data/weather');
-    // Use the adapter to fix type issues
-    return adaptWeatherData(sampleWeatherData);
+    // TODO: Implement actual weather API integration
+    // This should call a real weather service with the provided location
+    throw new Error('Weather API integration not implemented');
   } catch (error) {
     console.error('Error fetching weather data:', error);
     return {

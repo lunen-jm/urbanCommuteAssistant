@@ -1,0 +1,271 @@
+.smart-favorites-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  min-height: 100vh;
+  color: white;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  gap: 15px;
+}
+
+.back-button {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s ease;
+}
+
+.back-button:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+}
+
+/* Insights Section */
+.insights-section {
+  margin-bottom: 40px;
+}
+
+.insights-section h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #64ffda;
+}
+
+.insight-card {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.insight-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.insight-icon {
+  font-size: 32px;
+  margin-right: 20px;
+  min-width: 50px;
+}
+
+.insight-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+  color: #64ffda;
+}
+
+.insight-content p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+/* Frequent Destinations */
+.frequent-destinations-section {
+  margin-bottom: 40px;
+}
+
+.frequent-destinations-section h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #64ffda;
+}
+
+.destinations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.destination-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+.destination-card:hover {
+  transform: translateY(-4px);
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.destination-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.destination-icon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+.destination-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: white;
+}
+
+.destination-stats p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #b0bec5;
+}
+
+.visit-count {
+  font-weight: 600;
+  color: #64ffda !important;
+}
+
+.frequency {
+  font-style: italic;
+}
+
+/* Recommendations Section */
+.recommendations-section {
+  margin-bottom: 40px;
+}
+
+.recommendations-section h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #64ffda;
+}
+
+.recommendation-card {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.recommendation-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.recommendation-icon {
+  font-size: 24px;
+  margin-right: 12px;
+}
+
+.recommendation-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: white;
+}
+
+.recommendation-content p {
+  margin: 0 0 15px 0;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #e0e0e0;
+}
+
+.feedback-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.feedback-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.3s ease;
+}
+
+.feedback-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.feedback-btn.active {
+  background: #64ffda;
+  color: #1a1a2e;
+  border-color: #64ffda;
+}
+
+/* Privacy Section */
+.privacy-section {
+  margin-bottom: 40px;
+}
+
+.privacy-card {
+  background: rgba(100, 255, 218, 0.1);
+  border: 1px solid rgba(100, 255, 218, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+}
+
+.privacy-card h3 {
+  margin: 0 0 10px 0;
+  font-size: 18px;
+  color: #64ffda;
+}
+
+.privacy-card p {
+  margin: 0;
+  font-size: 14px;
+  color: #b0bec5;
+  line-height: 1.4;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .smart-favorites-container {
+    padding: 15px;
+  }
+  
+  .header h1 {
+    font-size: 24px;
+  }
+  
+  .destinations-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .insight-card {
+    padding: 15px;
+  }
+  
+  .insight-icon {
+    font-size: 28px;
+    margin-right: 15px;
+    min-width: 40px;
+  }
+  
+  .feedback-buttons {
+    flex-wrap: wrap;
+  }
+}

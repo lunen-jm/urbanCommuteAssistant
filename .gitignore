@@ -1,7 +1,67 @@
+# Environment variables
 .env
 *.env
 .env.*
 !.env.example
+
+# Specific project environment files
 urban-commute-assistant/backend/.env
+urban-commute-assistant-simple/backend/.env
 backend/app/core/config.py
-node_modules
+
+# Dependencies
+node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Build outputs
+dist/
+build/
+*.egg-info/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
+
+# Database files
+*.db
+*.sqlite3
+
+# Temporary directories
+temp_env/
+.temp/
+
+# Python specific
+*.pyc
+.pytest_cache/
+.coverage
+.tox/
+.nox/
+htmlcov/
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini

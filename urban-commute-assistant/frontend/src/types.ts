@@ -230,10 +230,40 @@ export interface AuthState {
   error: string | null;
 }
 
+// Location-related types (imported from LocationService)
+export interface LocationCoordinates {
+  lat: number;
+  lng: number;
+  accuracy?: number;
+  timestamp?: number;
+}
+
+export interface LocationError {
+  code: number;
+  message: string;
+}
+
+export type LocationStatus = 'unknown' | 'loading' | 'success' | 'error';
+
+export interface SavedLocation {
+  id: string;
+  name: string;
+  address?: string;
+  lat: number;
+  lng: number;
+}
+
 export interface UserState {
   id: string | null;
   name: string;
   email: string;
+  // Location-related state
+  currentLocation: LocationCoordinates | null;
+  locationStatus: LocationStatus;
+  locationError: LocationError | null;
+  selectedDestination: SavedLocation | null;
+  savedLocations: SavedLocation[];
+  // User preferences
   preferences: {
     darkMode: boolean;
     preferredTransportModes: string[];

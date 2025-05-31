@@ -44,12 +44,11 @@ const Settings = () => {
       }));
     }
   };
-  
-  const handleSubmit = (e) => {
+    const handleSubmit = (e) => {
     e.preventDefault();
     
     // In a real app, this would update user preferences in the backend
-    console.log('Saving settings:', formData);
+    // console.log('Saving settings:', formData);
     
     // Show saved message
     setSaved(true);

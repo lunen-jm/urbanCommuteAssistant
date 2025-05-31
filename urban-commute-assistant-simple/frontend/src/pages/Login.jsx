@@ -29,8 +29,7 @@ const Login = () => {
       [name]: value,
     }));
   };
-  
-  const handleSubmit = async (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     
@@ -40,12 +39,16 @@ const Login = () => {
       return;
     }
     
-    // For testing purposes, we'll automatically log in regardless of input
-    // In a real app, this would authenticate against the backend
-    navigate('/');
-    
-    // In a real implementation, you would dispatch the login action
-    // dispatch(loginUser(formData));
+    try {
+      const result = await dispatch(loginUser(formData));
+      if (result.type === 'user/loginUser/fulfilled') {
+        navigate('/');
+      } else {
+        setError(result.payload || 'Login failed');
+      }
+    } catch (err) {
+      setError('Login failed. Please check your credentials.');
+    }
   };
   
   return (
@@ -88,10 +91,9 @@ const Login = () => {
             {loading ? 'Logging in...' : 'Log In'}
           </button>
         </form>
-        
-        <div className="login-footer">
-          <p className="demo-note">
-            This is a demo app. Any username and password will work.
+          <div className="login-footer">
+          <p className="help-text">
+            Enter your credentials to access the Urban Commute Assistant.
           </p>
         </div>
       </div>
