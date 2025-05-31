@@ -1,18 +1,22 @@
 [build]
   base = "frontend/"
   publish = "dist/"
-  command = "npm run build"
+  command = "npm ci && npm run build"
 
 [build.environment]
   NODE_VERSION = "18"
+  # Force esbuild to use correct platform
+  NPM_FLAGS = "--include=optional"
 
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200
-
+# Handle client-side routing
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
   force = false
+
+# Optional: API redirects if using Netlify Functions in the future
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
