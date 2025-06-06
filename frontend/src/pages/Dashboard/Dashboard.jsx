@@ -146,13 +146,12 @@ const Dashboard = () => {
       destination: nextArrival.destination
     };
   };// Process real API data with intelligent fallbacks and error handling
-  const processedData = {
-    weather: {
+  const processedData = {    weather: {
       temperature: weatherError || locationError ? 'N/A' : (weather?.temperature ?? 'Loading...'),
       condition: weatherError || locationError ? 'Data unavailable' : (weather?.description || weather?.condition || 'Loading...'),
       icon: weatherError || locationError ? '❌' : getWeatherIcon(weather?.description || weather?.condition),
-      humidity: weatherError || locationError ? 'N/A' : (weather?.humidity ?? '...'),
-      windSpeed: weatherError || locationError ? 'N/A' : ((weather?.wind_speed || weather?.windSpeed) ?? '...'),
+      humidity: weatherError || locationError ? 'N/A' : (weather?.conditions?.humidity ?? weather?.humidity ?? '...'),
+      windSpeed: weatherError || locationError ? 'N/A' : ((weather?.conditions?.wind_speed || weather?.wind_speed || weather?.windSpeed) ?? '...'),
       feelsLike: weatherError || locationError ? 'N/A' : ((weather?.feels_like || weather?.feelsLike || weather?.temperature) ?? '...'),
       visibility: '10 mi', // API might not provide this
       uvIndex: 0, // API might not provide this
