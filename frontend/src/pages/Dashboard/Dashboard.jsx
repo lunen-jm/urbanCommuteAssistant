@@ -119,8 +119,8 @@ const Dashboard = () => {
       return { time: 'No data', status: 'Unknown' };
     }
     
-    // Get the soonest arrival
-    const sortedArrivals = transitData.arrivals.sort((a, b) => 
+    // Get the soonest arrival - create a copy before sorting to avoid mutating read-only arrays
+    const sortedArrivals = [...transitData.arrivals].sort((a, b) => 
       new Date(a.arrival_time) - new Date(b.arrival_time)
     );
     
