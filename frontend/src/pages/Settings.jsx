@@ -9,7 +9,8 @@ const Settings = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
-    const [formData, setFormData] = useState({
+  
+  const [formData, setFormData] = useState({
     userName: user.name || '',
     theme: user.preferences?.theme || 'dark',
     transitTypes: user.preferences?.transitTypes || ['bus', 'rail'],
@@ -20,15 +21,55 @@ const Settings = () => {
     eveningStart: user.preferences?.commuteTimes?.eveningStart || '17:00',
     eveningEnd: user.preferences?.commuteTimes?.eveningEnd || '18:30',
   });
-    const [saved, setSaved] = useState(false);
+  
+  const [saved, setSaved] = useState(false);
   const [savedLocations, setSavedLocations] = useState(user.savedLocations || []);
   const [isEditingLocations, setIsEditingLocations] = useState(false);
   const [newLocation, setNewLocation] = useState({ name: '', address: '', type: 'other' });
   const [showAddForm, setShowAddForm] = useState(false);
+  const [isGeocoding, setIsGeocoding] = useState(false);
+
+  // Add validation helper
+  const validateLocation = (location) => {
+    return location.name?.trim() && 
+           location.address?.trim() && 
+           typeof location.lat === 'number' && 
+           typeof location.lng === 'number' &&
+           location.lat >= -90 && location.lat <= 90 &&
+           location.lng >= -180 && location.lng <= 180;
+  };
+
+  // Add geocoding function
+  const geocodeAddress = async (address) => {
+    try {
+      // Using a free geocoding service (Nominatim) - you can replace with TomTom if you have an API key
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`
+      );
+      const data = await response.json();
+      
+      if (data && data.length > 0) {
+        return {
+          lat: parseFloat(data[0].lat),
+          lng: parseFloat(data[0].lon)
+        };
+      }
+    } catch (error) {
+      console.error('Geocoding failed:', error);
+    }
+    // Fallback to Seattle coordinates
+    return { lat: 47.6062, lng: -122.3321 };
+  };
+
+  // Generate better ID instead of timestamp
+  const generateId = () => {
+    return 'loc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+  };
+
   const getUserInitials = (name) => {
     if (!name) return '??';
     return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
-  };  // Sync local savedLocations with Redux store
+  };// Sync local savedLocations with Redux store
   useEffect(() => {
     if (user.savedLocations) {
       setSavedLocations(user.savedLocations);
@@ -59,24 +100,43 @@ const Settings = () => {
         [name]: value,
       }));
     }
-  };  const handleAddLocation = () => {
-    if (newLocation.name && newLocation.address) {
-      const newLoc = {
-        id: String(Date.now()),
-        name: newLocation.name,
-        address: newLocation.address,
-        type: newLocation.type,
-        lat: 47.6062, // Default to Seattle coordinates - in real app would geocode the address
-        lng: -122.3321,
-        favorite: false
-      };
+  };  const handleAddLocation = async () => {
+    if (newLocation.name?.trim() && newLocation.address?.trim()) {
+      setIsGeocoding(true);
       
-      // Dispatch to Redux store
-      dispatch(addSavedLocation(newLoc));
-      
-      // Reset form
-      setNewLocation({ name: '', address: '', type: 'other' });
-      setShowAddForm(false);
+      try {
+        // Geocode the address to get real coordinates
+        const coordinates = await geocodeAddress(newLocation.address);
+        
+        const newLoc = {
+          id: generateId(),
+          name: newLocation.name.trim(),
+          address: newLocation.address.trim(),
+          type: newLocation.type,
+          lat: coordinates.lat,
+          lng: coordinates.lng,
+          favorite: false
+        };
+        
+        // Validate the location before adding
+        if (validateLocation(newLoc)) {
+          // Dispatch to Redux store
+          dispatch(addSavedLocation(newLoc));
+          
+          // Reset form
+          setNewLocation({ name: '', address: '', type: 'other' });
+          setShowAddForm(false);
+        } else {
+          alert('Invalid location data. Please check your input and try again.');
+        }
+      } catch (error) {
+        console.error('Error adding location:', error);
+        alert('Failed to add location. Please try again.');
+      } finally {
+        setIsGeocoding(false);
+      }
+    } else {
+      alert('Please fill in both name and address fields.');
     }
   };
   const handleEditLocation = (id, field, value) => {
@@ -316,49 +376,60 @@ const Settings = () => {
                   onClick={() => setIsEditingLocations(!isEditingLocations)}
                 >
                   {isEditingLocations ? 'Done' : 'Edit'}
-                </button>
-                <button 
+                </button>                <button 
                   type="button"
                   className="add-button"
                   onClick={() => setShowAddForm(!showAddForm)}
+                  disabled={isGeocoding}
                 >
                   + Add Location
                 </button>
               </div>
-            </div>
-
-            {showAddForm && (
+            </div>            {showAddForm && (
               <div className="add-location-form">
                 <div className="form-row">
                   <input
                     type="text"
-                    placeholder="Location name"
+                    placeholder="Location name (e.g., Home, Office)"
                     value={newLocation.name}
-                    onChange={(e) => setNewLocation(prev => ({ ...prev, name: e.target.value }))
-                    }
+                    onChange={(e) => setNewLocation(prev => ({ ...prev, name: e.target.value }))}
+                    disabled={isGeocoding}
                   />
                   <input
                     type="text"
-                    placeholder="Address"
+                    placeholder="Full address (e.g., 123 Main St, Seattle, WA)"
                     value={newLocation.address}
-                    onChange={(e) => setNewLocation(prev => ({ ...prev, address: e.target.value }))
-                    }
+                    onChange={(e) => setNewLocation(prev => ({ ...prev, address: e.target.value }))}
+                    disabled={isGeocoding}
                   />
                   <select
                     value={newLocation.type}
-                    onChange={(e) => setNewLocation(prev => ({ ...prev, type: e.target.value }))
-                    }
+                    onChange={(e) => setNewLocation(prev => ({ ...prev, type: e.target.value }))}
+                    disabled={isGeocoding}
                   >
-                    <option value="home">Home</option>
-                    <option value="work">Work</option>
-                    <option value="other">Other</option>
+                    <option value="home">🏠 Home</option>
+                    <option value="work">🏢 Work</option>
+                    <option value="gym">💪 Gym</option>
+                    <option value="school">🏫 School</option>
+                    <option value="shopping">🛒 Shopping</option>
+                    <option value="other">📍 Other</option>
                   </select>
                 </div>
                 <div className="form-actions">
-                  <button type="button" onClick={handleAddLocation} className="save-button">
-                    Save Location
+                  <button 
+                    type="button" 
+                    onClick={handleAddLocation} 
+                    className="save-button"
+                    disabled={isGeocoding || !newLocation.name.trim() || !newLocation.address.trim()}
+                  >
+                    {isGeocoding ? 'Finding location...' : 'Save Location'}
                   </button>
-                  <button type="button" onClick={() => setShowAddForm(false)} className="cancel-button">
+                  <button 
+                    type="button" 
+                    onClick={() => setShowAddForm(false)} 
+                    className="cancel-button"
+                    disabled={isGeocoding}
+                  >
                     Cancel
                   </button>
                 </div>
@@ -367,9 +438,12 @@ const Settings = () => {
 
             <div className="locations-list">
               {savedLocations.map(location => (
-                <div key={location.id} className="location-item">
-                  <div className="location-type-icon">
-                    {location.type === 'home' ? '🏠' : location.type === 'work' ? '🏢' : '📍'}
+                <div key={location.id} className="location-item">                  <div className="location-type-icon">
+                    {location.type === 'home' ? '🏠' : 
+                     location.type === 'work' ? '🏢' : 
+                     location.type === 'gym' ? '💪' :
+                     location.type === 'school' ? '🏫' :
+                     location.type === 'shopping' ? '🛒' : '📍'}
                   </div>
                   <div className="location-details">
                     {isEditingLocations ? (                      <div className="edit-fields">
@@ -391,6 +465,9 @@ const Settings = () => {
                     ) : (                      <div className="location-info">
                         <h4 className="location-name">{location.name}</h4>
                         <p className="location-address">{location.address || 'No address specified'}</p>
+                        <small className="location-coords">
+                          {location.lat?.toFixed(4)}, {location.lng?.toFixed(4)}
+                        </small>
                       </div>
                     )}
                   </div>

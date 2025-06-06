@@ -11,39 +11,39 @@ const initialUserData = {
   location: null,  savedLocations: [
     {
       id: '1',
-      name: 'Home',
-      address: 'House in Bellevue',
+      name: 'Home (Bellevue)',
+      address: '123 Main St, Bellevue, WA 98004',
       type: 'home',
       favorite: true,
       lat: 47.6101,
-      lng: -122.2015 // Bellevue residential area
+      lng: -122.2015
     },
     {
       id: '2', 
-      name: 'Work',
-      address: 'Microsoft Redmond Campus',
+      name: 'Microsoft (Redmond)',
+      address: '1 Microsoft Way, Redmond, WA 98052',
       type: 'work',
       favorite: true,
       lat: 47.6423,
-      lng: -122.1301 // Microsoft Redmond Campus
+      lng: -122.1373
     },
     {
       id: '3',
-      name: 'Gym',
-      address: 'Crossroads Planet Fitness, Bellevue',
-      type: 'other',
+      name: 'Crossroads Planet Fitness',
+      address: '15600 NE 8th St, Bellevue, WA 98008',
+      type: 'gym',
       favorite: false,
-      lat: 47.5950,
-      lng: -122.1790 // Crossroads Planet Fitness, Bellevue
+      lat: 47.6205,
+      lng: -122.1370
     },
     {
       id: '4',
-      name: 'School',
-      address: 'Global Innovation Exchange (GIX), Bellevue',
-      type: 'other',
+      name: 'GIX (Global Innovation Exchange)',
+      address: '12280 NE District Way, Bellevue, WA 98005',
+      type: 'school',
       favorite: false,
-      lat: 47.6160,
-      lng: -122.1896 // Global Innovation Exchange (GIX), Bellevue
+      lat: 47.6545,
+      lng: -122.1365
     }
   ],
   selectedLocation: '2', // Default to Work
