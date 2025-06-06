@@ -14,9 +14,3 @@
   to = "/index.html"
   status = 200
   force = false
-
-# Optional: API redirects if using Netlify Functions in the future
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
-  status = 200

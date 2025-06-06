@@ -112,23 +112,40 @@ const Dashboard = () => {
     // Assume average distance of 10 miles for commute
     const estimatedTime = Math.round((10 / avgSpeed) * 60);
     return `${estimatedTime}-${estimatedTime + 5} min`;
-  };
-
-  // Helper function to get next transit arrival
+  };  // Helper function to get next transit arrival
   const getNextArrival = (transitData) => {
-    if (transitError) return { time: 'Error', status: 'Error' }; // Check transitError first
-    if (!transitData || !transitData.routes || transitData.routes.length === 0) {
+    if (transitError) return { time: 'Error', status: 'Error' };
+    if (!transitData || !transitData.arrivals || transitData.arrivals.length === 0) {
       return { time: 'No data', status: 'Unknown' };
     }
-    // Consider transitError
-    if (transitError) return { time: 'Error', status: 'Error' };
     
-    // For now, provide a reasonable estimate
+    // Get the soonest arrival
+    const sortedArrivals = transitData.arrivals.sort((a, b) => 
+      new Date(a.arrival_time) - new Date(b.arrival_time)
+    );
+    
+    const nextArrival = sortedArrivals[0];
+    const arrivalTime = new Date(nextArrival.arrival_time);
+    const now = new Date();
+    const minutesUntil = Math.round((arrivalTime - now) / (1000 * 60));
+    
+    // Map King County Metro status to display status
+    let displayStatus = 'On Time';
+    if (nextArrival.status === 'DELAYED') {
+      displayStatus = 'Delayed';
+    } else if (nextArrival.status === 'REAL_TIME') {
+      displayStatus = 'Real-time';
+    } else if (nextArrival.status === 'SCHEDULED') {
+      displayStatus = 'Scheduled';
+    }
+    
     return {
-      time: '5-10 min',
-      status: 'On Time'
+      time: minutesUntil > 0 ? `${minutesUntil} min` : 'Now',
+      status: displayStatus,
+      route: nextArrival.route_name || nextArrival.route,
+      destination: nextArrival.destination
     };
-  };  // Process real API data with intelligent fallbacks and error handling
+  };// Process real API data with intelligent fallbacks and error handling
   const processedData = {
     weather: {
       temperature: weatherError || locationError ? 'N/A' : (weather?.temperature ?? 'Loading...'),
@@ -175,20 +192,31 @@ const Dashboard = () => {
         `${Math.round(traffic.flowSegments.reduce((sum, seg) => sum + (seg.currentSpeed || seg.speed || 35), 0) / traffic.flowSegments.length)} mph` 
         : '35 mph'),
       alternativeRoute: trafficError ? 'Data unavailable' : 'Alternative routes available'
-    },
-    transit: {
+    },    transit: {
       nextArrival: transitError ? 'No data' : getNextArrival(transit).time,
       status: transitError ? 'Unknown' : getNextArrival(transit).status,
-      route: transitError || !transit ? 'No route data' : (transit?.routes?.[0]?.longName || transit?.routes?.[0]?.shortName || 'Transit Route'),
-      upcomingTrains: transitError || !transit ? [] : (transit?.routes?.slice(0, 3).map((route, index) => ({
-        line: route.shortName || route.longName || 'Route',
-        destination: route.longName || 'Destination',
-        time: `${5 + index * 10} min`,
-        status: 'On Time'
-      })) || [
-        { line: 'Transit', destination: 'Destination', time: '5 min', status: 'On Time' },
-        { line: 'Transit', destination: 'Destination', time: '15 min', status: 'On Time' }
-      ]),
+      route: transitError || !transit ? 'No route data' : getNextArrival(transit).route,      upcomingTrains: transitError || !transit ? [] : (transit?.arrivals?.map((arrival, index) => {
+        const arrivalTime = new Date(arrival.arrival_time);
+        const now = new Date();
+        const minutesUntil = Math.round((arrivalTime - now) / (1000 * 60));
+        
+        // Map King County Metro status to display status
+        let displayStatus = 'On Time';
+        if (arrival.status === 'DELAYED') {
+          displayStatus = 'Delayed';
+        } else if (arrival.status === 'REAL_TIME') {
+          displayStatus = 'Real-time';
+        } else if (arrival.status === 'SCHEDULED') {
+          displayStatus = 'Scheduled';
+        }
+        
+        return {
+          line: arrival.route_name || arrival.route,
+          destination: arrival.destination || 'Unknown',
+          time: minutesUntil > 0 ? `${minutesUntil} min` : 'Now',
+          status: displayStatus
+        };
+      }).slice(0, 3) || []),
       serviceAlerts: transitError || !transit ? [] : (transit?.serviceAlerts?.map(alert => ({
         type: alert.effect || 'Info',
         message: alert.header || alert.description || 'Service information'

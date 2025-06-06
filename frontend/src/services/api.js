@@ -35,7 +35,6 @@ const apiService = {
   // Transit endpoints
   getTransit: (lat, lon, radius = 500) => 
     api.get('/api/transit', { params: { lat, lon, radius } }),
-  
   // User endpoints
   login: (username, password) => 
     api.post('/api/users/token', { username, password }),
