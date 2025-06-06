@@ -119,35 +119,27 @@ App
 - Managed database services
 - Built-in monitoring and logging
 
-### 5.2 Docker Components
+### 5.2 Development Setup
 
-```yaml
-# Core services in docker-compose.yml
-services:
-  frontend:
-    build: ./frontend
-    ports: ["3000:3000"]
-    depends_on: ["backend"]
+```powershell
+# Core development environment
+# Frontend development server (Vite)
+cd frontend
+npm install
+npm run dev  # Runs on http://localhost:5173
 
-  backend:
-    build: ./backend
-    ports: ["8000:8000"]
-    depends_on: ["db", "redis"]
-    environment: # Configuration and API keys
+# Backend development server (FastAPI with Uvicorn)
+cd backend
+pip install -r requirements.txt
+python main.py  # Runs on http://localhost:8000
 
-  db:
-    image: postgres:14
-    volumes: ["pg_data:/var/lib/postgresql/data"]
-    environment: # Database configuration
+# Environment configuration
+# Frontend: .env file with VITE_* variables
+# Backend: .env file with API keys and settings
 
-  redis:
-    image: redis:alpine
-    volumes: ["redis_data:/data"]
-
-  worker:
-    build: ./backend
-    command: ["celery", "-A", "app.tasks", "worker"]
-    depends_on: ["backend", "redis"]
+# No database required - uses browser localStorage
+# No Redis required - simple in-memory caching
+# No background workers - direct API calls
 ```
 
 ## 6. Adding New Features

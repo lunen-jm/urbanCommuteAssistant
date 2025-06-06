@@ -1,8 +1,0 @@
-{
-  "name": "urban-commute-assistant-simple-backend",
-  "version": "1.0.0",
-  "private": true,
-  "scripts": {
-    "dev": "python run.py"
-  }
-}

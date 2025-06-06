@@ -1,0 +1,2 @@
+# This is a placeholder file. Replace with an actual favicon.png
+# You can create one at https://favicon.io/ or use any 32x32 PNG image

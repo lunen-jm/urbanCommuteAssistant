@@ -1,91 +1,133 @@
-# TECHIN 510 Final Project Description
+# Urban Commute Assistant
 
-## Project Objectives
-- Develop an interactive real-time web application that integrates diverse urban data streams (traffic conditions, harsh weather, public transportation schedules) to assist commuters in making informed daily decisions.
-- Clearly present real-time urban data to users, providing actionable commuting suggestions based on current environmental and transit conditions.
-- Tailor recommendations based on user location and destination information, enabling personalized commuting solutions.
+A modern, mobile-friendly commute assistant for the Seattle/Eastside area, featuring real-time weather, traffic, transit, and smart commute recommendations. The UI is responsive and optimized for both desktop and mobile.
 
-## Target Users and Needs
-- **Daily Commuters**: Professionals and students in urban settings who regularly navigate city infrastructure.
-  - Need timely and accessible information about current environmental conditions (weather, traffic, transportation).
-  - Require proactive notifications regarding disruptions or delays in their daily commute.
-  - Seek alternative commuting suggestions when disruptions or unfavorable conditions arise.
+## Features
 
-## Key Deliverables
-- Interactive web application integrating multiple web APIs (traffic, weather, public transportation).
-- Real-time visualizations of urban data conditions.
-- Map-based visualization indicating active disruptions and recommended alternatives.
-- Notification system allowing users to set preferences for alerts and updates.
+- **Weather Information:** Real-time weather for your current or selected location
+- **Traffic Updates:** Live traffic incidents and congestion
+- **Transit Options:** Nearby public transit stops and arrivals (uses your current location)
+- **Commute Recommendations:** Smart suggestions based on weather, traffic, and transit
+- **Interactive Map:** View your location, select a destination, and see recommended routes
+- **ETA Calculation:** See estimated travel time for the recommended route
+- **Mobile-First Design:** Fully responsive layout
+- **Custom Locations:** Home, Work, Gym, and School (all set to real local addresses)
 
-## Special Constraints
-- Compliance with data privacy regulations, specifically the California Consumer Privacy Act (CCPA), regarding management and protection of user data.
+### 🧠 Machine Learning Features (NEW!)
 
-## Expected Outcome
-- Enhanced quality of life for users through improved daily decision-making, minimized commuting stress, and increased adaptability to urban disruptions.
+- **Smart Defaults:** Remembers your preferred transport method for each destination
+- **Frequency-based Suggestions:** Promotes your most visited destinations with star icons
+- **Weather Adaptation:** Learns your transport preferences for different weather conditions
+- **Time-based Learning:** Adapts recommendations based on your commute patterns throughout the day
+- **Smart Favorites Page:** Curated suggestions based on your usage patterns with feedback options
+- **Analytics Dashboard:** Detailed insights into your commute patterns, transport usage, and trends
+- **Privacy-First:** All ML data is stored locally on your device - nothing is shared or uploaded
 
-## Progress
+## Project Structure
 
-4.18.25 - Initial container app has been created, current location is used, the map is shown, the API connections are initialized (keys have not been included yet in repository due to debugging), and general project dependencies and packages are listed in their respective documents.
+```
+├── frontend/                 # React app (Vite, Redux, Leaflet for maps)
+│   ├── src/
+│   │   ├── components/       # UI components (Map, Header, Dashboard, etc.)
+│   │   ├── pages/            # Page components (Home, Analytics, SmartFavorites, Settings)
+│   │   ├── services/         # API and routing logic
+│   │   ├── utils/            # Utility functions (including ML learning system)
+│   │   └── store/            # Redux slices (user, weather, traffic, transit)
+│   └── package.json          # Frontend dependencies
+├── backend/                  # FastAPI backend (Python 3.11+)
+│   ├── api/                  # API routes (weather, traffic, transit, users)
+│   ├── services/             # External API integrations
+│   └── requirements.txt      # Python dependencies
+├── app/                      # Render.com compatibility layer
+├── ML_FEATURES.md           # Machine learning features documentation
+├── DEPLOYMENT.md            # Setup and deployment guide
+├── Setup-Environment.ps1    # Automated Python environment setup
+├── Start-Urban-Commute.ps1  # Start both frontend and backend servers
+└── README.md               # Main project documentation
+```
 
-5.2.25 - Following steps/features completed:
-* Initialized frontend and backend projects
-* Set up database models and migrations
-* Configured authentication system
-* Connected to traffic, weather, and transit APIs
-* Built data processing pipeline
-* Created caching layer with appropriate TTLs
-* Implemented fallback mechanisms and circuit breakers
-* Added comprehensive logging and metrics collection
-* Developed unit and integration tests for data services
-* Standardized data normalization across all endpoints
-* Documented API integrations and data transformation logic
-* Built interactive map interface
-* Created initial dashboard views
+## Getting Started
 
-Note: Data initial dashboard is sample data as APIs are not fully integrated
+### Prerequisites
+- Python 3.11.5 (backend)
+- Node.js 14+ (frontend)
+- npm or yarn
 
-5.16.25 - Following steps/features completed:
-* Created a simplified version of the app (urban-commute-assistant-simple) for easier development and deployment
-  * Docker was causing too many issues
-  * API Keys were just not working and I spent too much time debugging (around 15 hours that I chose not to charge my client for since it was my fault)
-* Implemented a lightweight FastAPI backend with Flask-compatible API endpoints
-* Built a responsive frontend using React, Vite, and modern CSS techniques
-* Integrated real-time transit data fetching based on user's geolocation
-  * Client decided that he wanted it to always bring him to one of the locations, based on his current location instead of home
-* Added interactive map visualization with Leaflet.js showing transit stops and traffic incidents
-  * Incident markers give helpful visualizations, but client wants them smaller moving forward
-* Created a weather information component with current conditions and forecast
-* Developed a dashboard with responsive layout for both desktop and mobile views
-  * Focused on mobile as client will likely use his phone for most, he provided many changes for the layout
-  * Organized cards in a variable order based on recommend commute choice
-* Added location selection with real addresses (Home, Work, Gym, School)
-* Implemented ETA calculation for selected routes
-* Created automated setup scripts for Windows environments (PowerShell)
-* Added commute recommendations based on current weather and traffic conditions
-* Improved mobile responsiveness with adaptive stacking layouts
-* Implemented Redux state management for consistent data flow
-* Created deployment configurations for Netlify (frontend) and Render (backend)
-* Added service worker for offline capability and improved loading performance
-* Fixed cross-browser compatibility issues in Safari and Firefox
-* Optimized map performance for mobile devices
-* Added thorough documentation for setup, deployment, and troubleshooting
-* Implemented fallbacks when APIs are unavailable
+### Setup
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/your-username/urban-commute-assistant.git
+   cd TECHIN510-Developer
+   ```
+2. **Quick start (recommended):**
+   ```powershell
+   .\Setup-Environment.ps1    # Install dependencies
+   .\Start-Urban-Commute.ps1  # Start both servers
+   ```
+3. **Configure API Keys:**
+   - Copy `.env.example` to `.env` in both `frontend/` and `backend/`
+   - Add your API keys (see [DEPLOYMENT.md](DEPLOYMENT.md) for details)
+4. **Access the app:**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:8000
 
-## Next Steps / Known Issues
+> 📖 **Need more help?** See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed setup, troubleshooting, and production deployment instructions.
 
-* **User Authentication System**
-  * Implement secure login/registration with JWT or OAuth
-  * Add user profiles with saved preferences and commute history instead of one default user
-* **Transit Data API Integration**
-  * Fix the current implementation, markers are off and stops are not populating accuratly in cards
-  * Implement transit vehicle tracking on the map
-* **Design & UI Refinements**
-  * Reduce map marker size per client feedback
-  * Add route alternatives visualization (only main is populated currently)
-  * Implement dark mode support
-* **Enhanced Personalization**
-  * Add user preference learning based on commute choices
-  * Develop custom notifications for specific routes/stops
-* **Advanced Weather Integration**
-  * Add hourly forecasts for commute planning
-  * Implement severe weather alerts and routing adjustments
+## How to Add or Edit Locations
+
+- The app includes four default locations:
+  - **Home:** House in Bellevue
+  - **Work:** Microsoft Redmond Campus
+  - **Gym:** Crossroads Planet Fitness, Bellevue
+  - **School:** Global Innovation Exchange (GIX), Bellevue
+- To change these, edit the `savedLocations` array in `frontend/src/store/userSlice.js` and restart the frontend.
+- Transit options always use your current location (via browser geolocation) for accuracy.
+
+## Machine Learning Features
+
+The app includes intelligent learning capabilities that adapt to your commute patterns:
+
+### 🧠 Smart Learning System
+- **Smart Defaults:** Remembers your preferred transport method for each destination
+- **Usage Patterns:** Tracks destination frequency and shows star icons for favorites  
+- **Weather Adaptation:** Learns transport preferences based on weather conditions
+- **Analytics Dashboard:** View detailed statistics and commute patterns
+
+### 🔒 Privacy-First Design
+- **Local Storage Only:** All learning data stays on your device
+- **Transparent Recommendations:** See why each suggestion was made
+- **User Control:** Clear all ML data anytime from the Analytics page
+
+### 📱 Easy Access
+Use the footer navigation to access:
+- **Smart Favorites (⭐):** ML-curated destination suggestions
+- **Analytics (📊):** Detailed insights and patterns
+- **Settings (⚙️):** Manage preferences and clear data
+
+> 🧠 **Learn more:** See [ML_FEATURES.md](ML_FEATURES.md) for technical details and implementation information.
+
+## Next Steps
+- **Enhanced ML Features:** Advanced route optimization and predictive analytics
+- **Design System:** Comprehensive UI/UX improvements and theming
+- **Performance Optimization:** Caching, API optimization, and mobile performance
+- **Backend ML Integration:** Optional cloud sync and advanced analytics
+- **Multi-user Support:** User accounts and profile management
+
+## Troubleshooting
+- **Map issues:** Check TomTom API key and domain restrictions
+- **CORS errors:** Verify frontend/backend URLs in `.env` files  
+- **API errors:** Confirm API keys have sufficient quota
+- **General issues:** Run `.\Debug-Application.ps1` for diagnostics
+
+> 🔧 **Need help?** See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed troubleshooting and setup assistance.
+
+## Documentation
+
+- **[README.md](README.md)** - Main project overview (this file)
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Setup, deployment, and troubleshooting
+- **[ML_FEATURES.md](ML_FEATURES.md)** - Machine learning implementation details
+- **[app/README.md](app/README.md)** - Render.com compatibility notes
+
+---
+
+Built with ❤️ for Seattle commuters. Responsive design, privacy-first ML, and real-time data integration.
