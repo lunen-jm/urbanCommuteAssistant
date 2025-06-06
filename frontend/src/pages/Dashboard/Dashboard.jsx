@@ -51,9 +51,7 @@ const Dashboard = () => {
   // const [locationLoading, setLocationLoading] = useState(true); // Replaced by useLocation's status
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
-  const user = useSelector(state => state.user);
-  const currentLocation = liveCurrentLocation; // Use live location from the hook
+  const user = useSelector(state => state.user);  const currentLocation = liveCurrentLocation; // Use live location from the hook
   const locationStatus = liveLocationStatus; // Use live status from the hook
   const locationError = liveLocationError; // Use live error from the hook
 
@@ -68,11 +66,16 @@ const Dashboard = () => {
   // Overall loading should primarily reflect data fetching status for the dashboard's core content.
   // Location loading is handled by isLocationLoading from useLocation.
   const dataLoading = weatherLoading || trafficLoading || transitLoading;
-  
-  // Error states from individual data slices
+    // Error states from individual data slices
   const weatherError = useSelector(state => state.weather.error);
   const trafficError = useSelector(state => state.traffic.error);
   const transitError = useSelector(state => state.transit.error);
+  
+  // Helper function to get user initials
+  const getUserInitials = (name) => {
+    if (!name) return 'JD'; // Default fallback
+    return name.split(' ').map(word => word[0]).join('').toUpperCase().slice(0, 2);
+  };
   
   // Helper function to get weather icon based on condition
   const getWeatherIcon = (condition) => {
@@ -625,10 +628,9 @@ const Dashboard = () => {
         <div className="greeting-section">
           <h1>{locationStatus === 'loading' ? 'Locating...' : locationStatus === 'error' ? 'Location Error' : 'Good Evening'}</h1>
           <p>Plan your commute</p>
-        </div>
-        <div className="profile-section">
-          <div className="avatar">JD</div>
-        </div>      </div>
+        </div>        <div className="profile-section">
+          <div className="avatar">{getUserInitials(user.name)}</div>
+        </div></div>
 
       {/* Accordion Status Cards */}
       <div className="status-accordion-container">        {/* Weather Card */}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../components/BackButton/BackButton';
 import mlUtils from '../utils/mlUtils';
 import './Analytics.css';
 
@@ -62,14 +63,11 @@ const Analytics = () => {
     if (!total) return '0%';
     return `${Math.round((value / total) * 100)}%`;
   };
-
   return (
     <div className="analytics-container">
       {/* Header */}
-      <div className="header">
-        <button className="back-button" onClick={() => navigate('/')}>
-          ← Back
-        </button>
+      <div className="analytics-header">
+        <BackButton />
         <h1>Your Commute Analytics</h1>
       </div>
 

@@ -13,6 +13,8 @@ const initialUserData = {
       id: '1',
       name: 'Home',
       address: 'House in Bellevue',
+      type: 'home',
+      favorite: true,
       lat: 47.6101,
       lng: -122.2015 // Bellevue residential area
     },
@@ -20,13 +22,17 @@ const initialUserData = {
       id: '2', 
       name: 'Work',
       address: 'Microsoft Redmond Campus',
+      type: 'work',
+      favorite: true,
       lat: 47.6423,
       lng: -122.1301 // Microsoft Redmond Campus
     },
     {
       id: '3',
       name: 'Gym',
-      address: 'Crossroads Planet Fitness, Bellevue', 
+      address: 'Crossroads Planet Fitness, Bellevue',
+      type: 'other',
+      favorite: false,
       lat: 47.5950,
       lng: -122.1790 // Crossroads Planet Fitness, Bellevue
     },
@@ -34,6 +40,8 @@ const initialUserData = {
       id: '4',
       name: 'School',
       address: 'Global Innovation Exchange (GIX), Bellevue',
+      type: 'other',
+      favorite: false,
       lat: 47.6160,
       lng: -122.1896 // Global Innovation Exchange (GIX), Bellevue
     }
@@ -113,17 +121,34 @@ const userSlice = createSlice({  name: 'user',
       state.selectedLocation = action.payload;
       // Don't overwrite the user's actual current location when selecting destinations
       // The selectedLocation is just the destination, not the user's current position
-    },
-    addSavedLocation: (state, action) => {
+    },    addSavedLocation: (state, action) => {
       // Generate a new ID - in a real app you'd want to ensure uniqueness
       const newId = String(state.savedLocations.length + 1);
       const newLocation = { 
         id: newId, 
         name: action.payload.name, 
+        address: action.payload.address || '',
         lat: action.payload.lat, 
-        lng: action.payload.lng 
+        lng: action.payload.lng,
+        type: action.payload.type || 'other',
+        favorite: action.payload.favorite || false
       };
       state.savedLocations.push(newLocation);
+    },
+    updateSavedLocation: (state, action) => {
+      const { id, updates } = action.payload;
+      const locationIndex = state.savedLocations.findIndex(loc => loc.id === id);
+      if (locationIndex !== -1) {
+        state.savedLocations[locationIndex] = { ...state.savedLocations[locationIndex], ...updates };
+      }
+    },
+    deleteSavedLocation: (state, action) => {
+      const locationId = action.payload;
+      state.savedLocations = state.savedLocations.filter(loc => loc.id !== locationId);
+      // If the deleted location was selected, reset to the first available location
+      if (state.selectedLocation === locationId && state.savedLocations.length > 0) {
+        state.selectedLocation = state.savedLocations[0].id;
+      }
     },
     toggleUseCurrentLocation: (state, action) => {
       state.useCurrentLocation = action.payload;
@@ -141,11 +166,23 @@ const userSlice = createSlice({  name: 'user',
     setLocationError: (state, action) => {
       state.locationStatus = 'error';
       state.locationError = action.payload;
-    },
-    clearLocationError: (state) => {
+    },    clearLocationError: (state) => {
       state.locationError = null;
       if (state.locationStatus === 'error') {
         state.locationStatus = 'unknown';
+      }
+    },
+    updateUserProfile: (state, action) => {
+      // Update user profile data like name, preferences, etc.
+      const updates = action.payload;
+      if (updates.name !== undefined) {
+        state.name = updates.name;
+      }
+      if (updates.preferences) {
+        state.preferences = { ...state.preferences, ...updates.preferences };
+      }
+      if (updates.email !== undefined) {
+        state.email = updates.email;
       }
     },
   },
@@ -184,10 +221,13 @@ export const {
   updateUserLocation, 
   selectSavedLocation, 
   addSavedLocation, 
+  updateSavedLocation,
+  deleteSavedLocation,
   toggleUseCurrentLocation,
   setCurrentLocation,
   setLocationLoading,
   setLocationError,
   clearLocationError,
+  updateUserProfile,
 } = userSlice.actions;
 export default userSlice.reducer;

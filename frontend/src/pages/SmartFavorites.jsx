@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import BackButton from '../components/BackButton/BackButton';
 import mlUtils from '../utils/mlUtils';
 import './SmartFavorites.css';
 
@@ -37,14 +38,11 @@ const SmartFavorites = () => {
       } 
     });
   };
-
   return (
     <div className="smart-favorites-container">
       {/* Header */}
-      <div className="header">
-        <button className="back-button" onClick={() => navigate('/')}>
-          ← Back
-        </button>
+      <div className="smart-favorites-header">
+        <BackButton />
         <h1>Smart Favorites</h1>
       </div>
 
